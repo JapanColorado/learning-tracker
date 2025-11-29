@@ -1,94 +1,391 @@
-# CLAUDE.md
-
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+# Polymathica - Learning Tracker
 
 ## Project Overview
 
-Learning Tracker is a single-file HTML application for tracking learning progress across multiple subjects. It's a purely client-side app with no build step or dependencies - just open `learning-tracker.html` in a browser.
-
-## Development
-
-**Running the application:**
-```bash
-# Open in default browser (Linux)
-xdg-open learning-tracker.html
-
-# Or simply open the file in any modern browser
-```
-
-No build, lint, or test commands - this is a standalone HTML file with embedded CSS and JavaScript.
+Polymathica is a web-based learning tracker application designed to help users organize and track their progress across multiple subjects, fields, and learning projects. The application provides a hierarchical structure for managing learning goals, resources, projects, and notes.
 
 ## Architecture
 
-### Single-File Structure
+### File Structure
 
-All code lives in `learning-tracker.html`:
-- **CSS Styles** (~lines 7-1012): Comprehensive styling with dark/light theme support via CSS custom properties
-- **HTML Structure** (~lines 1-300): Static UI structure with modals, filters, and stats dashboard
-- **JavaScript Application** (~lines 1014+): All application logic in vanilla JS
+```
+learning-tracker/
+├── index.html          # Main HTML structure with modals
+├── app.js              # Core application logic (~800 lines)
+├── styles.css          # Complete styling (dark/light theme support)
+├── data/
+│   ├── subjects.js     # Default subject catalog (Mathematics, Physics, etc.)
+│   └── summaries.js    # Subject summaries/descriptions
+└── CLAUDE.md          # This file
+```
 
-### Data Model
+### Technology Stack
 
-The app manages three main data structures stored in localStorage:
+- **Pure Vanilla JavaScript** - No frameworks
+- **LocalStorage** - Data persistence
+- **Marked.js** - Markdown rendering for notepads
+- **CSS Custom Properties** - Theme support
 
-1. **`subjects`** - The catalog of learning subjects organized by tier (Mathematics, Physics, Chemistry, etc.)
-   - Each subject has: `id`, `name`, optional `prereq` (prerequisites), `coreq` (corequisites), `soft` (soft prerequisites)
-   - Loaded from `defaultSubjects` constant, persisted in localStorage as 'subjects'
+## Data Model
 
-2. **`subjectState`** - Status tracking for each subject
-   - Possible statuses: 'not-started', 'in-progress', 'completed'
-   - Persisted in localStorage as 'subjectTracker'
+### Version 2 Structure
 
-3. **`subjectNotes`** - Notes/summaries for each subject (Markdown format)
-   - Persisted in localStorage as 'subjectNotes'
+The application uses a v2 data format with the following hierarchy:
 
-### Key Functions
+```javascript
+subjects = {
+  "Tier Name": {
+    category: "string",
+    subjects: [
+      {
+        id: "string",           // Unique identifier
+        name: "string",         // Display name
+        goal: "string",         // Optional learning goal
+        prereq: ["id"],         // Required prerequisites
+        coreq: ["id"],          // Co-requisites
+        soft: ["id"],           // Soft dependencies
+        resources: [            // Learning resources
+          {
+            type: "link",       // "link" or "text"
+            value: "string",    // Display text
+            url: "string"       // Optional URL if type=link
+          }
+        ],
+        projects: [             // Nested projects
+          {
+            id: "string",
+            name: "string",
+            goal: "string",     // Required for projects
+            resources: [],      // Same structure as subject resources
+            notepad: "string",  // Markdown notes
+            status: "string"    // "not-started", "in-progress", "completed"
+          }
+        ],
+        notepad: "string"       // Markdown notes for subject
+      }
+    ]
+  }
+}
+```
 
-**State Management:**
-- `loadSubjects()`, `loadState()`, `loadNotes()` - Load data from localStorage on init
-- `saveSubjects()`, `saveState()`, `saveNotesState()` - Persist changes to localStorage
-- `getSubjectStatus(id)`, `setSubjectStatus(id, status)` - Get/set subject completion status
+### Progress States
 
-**Dependency Logic:**
-- `calculateReadiness(subject)` - Determines if a subject is ready/partial/locked based on prerequisites
-- Returns 'ready', 'partial', or 'locked' based on completion of prerequisites
+- `empty` - Not started (☐)
+- `partial` - In progress (☑ with line)
+- `complete` - Completed (☒ with checkmark)
 
-**Rendering:**
-- `render()` - Main render function that rebuilds the entire subject list
-- `renderTier(tierName, tierData)` - Renders a tier section with all its subjects
-- `renderSubjectCard(subject)` - Renders individual subject cards with status and dependencies
-- `updateStats()` - Updates the stats dashboard (total, completed, in-progress, ready counts)
+### LocalStorage Keys
 
-**User Actions:**
-- `cycleStatus(id, event)` - Click on a card to cycle through statuses
-- `openNotesModal(subjectId)` - Open markdown notes editor for a subject
-- `openSubjectEditor(subjectId)` - Open modal to add/edit subjects
-- `applyFilters()` - Filter subjects by status or search term
+- `subjects` - Subject data structure
+- `subjectProgress` - Map of subject IDs to progress states
+- `dataVersion` - Currently "v2"
+- `theme` - "light" or "dark"
+- `currentView` - "dashboard" or "catalog"
+- `expandedState` - Legacy (kept for migration compatibility)
 
-### Theme System
+## Key Features
 
-Uses CSS custom properties (`--bg-primary`, `--text-primary`, etc.) with `[data-theme="dark"]` selector. Theme persisted in localStorage as 'theme'.
+### 1. Dashboard View
 
-## Adding New Features
+- **Current Section** - Shows subjects with `partial` progress
+- **Completed Section** - Shows subjects with `complete` progress
+- Click subjects to open detail modal
 
-**Adding a new subject:**
-- Users can add via UI (+ button), or edit `defaultSubjects` constant directly
-- Each subject needs a unique `id` and `name`
-- Optional: `prereq` array, `coreq` array, `soft` array for dependencies
+### 2. Catalog View
 
-**Modifying the data model:**
-- Update the three data structures: `subjects`, `subjectState`, `subjectNotes`
-- Update corresponding save/load functions
-- Consider localStorage migration for existing users
+- Organized by tiers (Mathematics, Physics, Chemistry, etc.)
+- Collapsible tier headers
+- Filter by search, status, and category
+- Each subject card shows:
+  - Title
+  - Goal (if set)
+  - Resources (with clickable links)
+  - Projects (if any)
+  - Progress checkbox (top right)
+  - Dependencies
 
-**Adding new UI elements:**
-- All UI is rendered via string template literals in render functions
-- Update the relevant `render*()` function
-- Add event listeners in the initialization code at the bottom of the script
+### 3. Subject Detail Modal
 
-## Data Flow
+Opened by clicking on a subject card. Contains:
+- **Goal** - Optional text area
+- **Resources** - List with add/remove functionality
+- **Projects** - List with add/edit/delete functionality
+- **Notepad** - Markdown editor with live preview
 
-1. Page load → `initializeTheme()` → load data from localStorage
-2. User interaction → modify state → call `saveState()`/`saveSubjects()` → call `render()`
-3. `render()` → loop through tiers → `renderTier()` → loop through subjects → `renderSubjectCard()`
-4. Cards show status badges, dependency indicators, and readiness based on prerequisites
+### 4. Project Detail Modal
+
+Opened when adding/editing a project. Contains:
+- **Name** - Required text field
+- **Goal** - Required text area
+- **Resources** - Same as subject resources
+- **Notepad** - Markdown editor with preview
+
+### 5. Resource Modal
+
+Simple modal for adding resources:
+- **Title/Description** - Required
+- **Link** - Optional URL
+  - If provided, resource becomes clickable
+  - If not, displays as plain text
+
+### 6. Progress Tracking
+
+- Click checkbox on subject card to cycle: empty → partial → complete
+- Progress persists in localStorage
+- Dashboard automatically categorizes by progress
+
+### 7. Dependencies & Prerequisites
+
+- `prereq` - Must complete before subject is ready
+- `coreq` - Should study simultaneously
+- `soft` - Helpful but not required
+- Visual indicators for locked subjects
+
+## Important Functions
+
+### Data Management
+
+- `loadAllData()` - Loads subjects and progress from localStorage
+- `saveSubjects()` - Persists subjects to localStorage
+- `saveProgress()` - Persists progress to localStorage
+- `migrateDataV1ToV2()` - Handles migration from old format
+
+### Rendering
+
+- `render()` - Main render function (dashboard or catalog view)
+- `renderSubjectCard(subject)` - Renders individual subject card
+- `renderTier(tierName, tierData)` - Renders tier with subjects
+- `renderResourcesList(resources, containerId, type)` - Renders resource list in modals
+
+### Modals
+
+- `openSubjectDetail(subjectId)` - Opens subject detail modal
+- `saveSubjectDetail()` - Saves changes from subject modal
+- `closeSubjectDetail()` - Closes subject modal
+- `addProject()` - Opens project modal in "add" mode
+- `editProject(projectIndex)` - Opens project modal in "edit" mode
+- `saveProjectDetail()` - Handles both add and edit for projects
+- `addResource(type)` - Opens resource modal ('subject' or 'project')
+- `saveResource()` - Saves resource to appropriate context
+
+### Progress & State
+
+- `getSubjectProgress(id)` - Returns 'empty', 'partial', or 'complete'
+- `setSubjectProgress(id, progress)` - Sets progress state
+- `cycleProgress(id, event)` - Cycles through progress states
+- `calculateReadiness(subject)` - Determines if subject is ready/locked
+
+### View Management
+
+- `switchView(view)` - Switches between 'dashboard' and 'catalog'
+- `applyFilters()` - Applies search and filter criteria in catalog view
+
+## Recent Major Changes
+
+### Refactoring from v1 to v2
+
+1. **Removed expandable/collapsible subject cards**
+   - Subject content now always visible
+   - Simplified rendering logic
+   - Cleaned up unused functions: `toggleSubjectExpanded`, `isSubjectExpanded`, `toggleProjectExpanded`, `isProjectExpanded`
+
+2. **Updated UI structure**
+   - Progress checkbox positioned in top right
+   - No expand arrow or ID shown on cards
+   - Cleaner, simpler card design
+
+3. **Replaced prompt/alert dialogs with proper modals**
+   - Resource modal for adding resources
+   - Project modal used for both add and edit
+   - Better UX with form validation
+
+4. **Improved resource handling**
+   - Resources have type (link/text) and optional URL
+   - Links are clickable when displayed
+   - Can add resources to new projects before saving (uses `tempProjectResources`)
+
+5. **Progress state mapping**
+   - Old: "not-started", "in-progress", "completed"
+   - New: "empty", "partial", "complete"
+   - Migration handles conversion automatically
+
+6. **Theme system**
+   - Fixed icon reversal: ☀️ for light mode, 🌙 for dark mode
+   - Uses CSS custom properties for theming
+   - Persists theme preference
+
+## CSS Architecture
+
+### Key Classes
+
+- `.subject-card` - Main card container
+  - `.subject-card.empty` - Not started (gray border)
+  - `.subject-card.partial` - In progress (orange border)
+  - `.subject-card.complete` - Completed (green border)
+  - `.subject-card.locked` - Prerequisites not met (dimmed)
+
+- `.progress-checkbox` - Styled checkbox
+  - Absolute positioned (top: 15px, right: 15px)
+  - Three states via pseudo-elements
+
+- `.modal` - Modal container
+  - `.modal.active` - Visible modal
+  - `.modal-content` - Modal dialog box
+
+- `.tier` - Tier container
+  - `.tier.collapsed` - Hidden tier content
+
+### Theme Variables
+
+Defined in `:root` and `[data-theme="dark"]`:
+- `--bg-primary`, `--bg-secondary`, `--bg-tertiary`
+- `--text-primary`, `--text-secondary`
+- `--border-color`, `--border-dark`
+- Card-specific backgrounds for different states
+
+## Known Patterns & Conventions
+
+### Global Functions
+
+Functions used in inline `onclick` handlers must be exposed on `window`:
+```javascript
+window.cycleProgress = cycleProgress;
+window.openSubjectDetail = openSubjectDetail;
+// etc.
+```
+
+### Modal Pattern
+
+1. Open: Set form values, `modal.classList.add('active')`
+2. Save: Validate, update data, `saveSubjects()`, close modal, re-render
+3. Close: `modal.classList.remove('active')`, clear editing state
+
+### Resource Context
+
+- `currentResourceContext` tracks whether adding to 'subject' or 'project'
+- `tempProjectResources` holds resources for new (unsaved) projects
+- Cleared when project is saved or modal closed
+
+## Testing & Debugging
+
+### Common Issues
+
+1. **LocalStorage conflicts** - Clear localStorage if data structure changes
+2. **Modal not showing** - Check if `.active` class is added
+3. **Functions not accessible** - Ensure exposed on `window` object
+4. **Progress not saving** - Check `saveProgress()` is called after state change
+
+### Debug Helpers
+
+The codebase includes console.log statements in key functions (can be removed for production):
+- `[Init]` - Initialization process
+- `[Migration]` - Data migration steps
+- `[Render]` - Rendering process
+- `[Load]` - Data loading
+
+## Development Guidelines
+
+### Adding New Features
+
+1. **New modal**: Add HTML structure in index.html, create open/close/save functions
+2. **New data field**: Update data model, add migration logic, update save/load
+3. **New view**: Add render logic in `render()`, add navigation
+4. **New filter**: Update `applyFilters()` function
+
+### Code Style
+
+- Use descriptive function names
+- Keep functions focused and small
+- Comment complex logic
+- Update this file when making architectural changes
+
+### Data Changes
+
+When modifying the data structure:
+1. Increment version (v2 → v3)
+2. Add migration function
+3. Test migration with existing v2 data
+4. Update localStorage keys if needed
+
+## Future Considerations
+
+### Potential Improvements
+
+1. **Export/Import** - Allow users to backup/restore data
+2. **Statistics** - More detailed progress tracking and analytics
+3. **Search** - More powerful search with fuzzy matching
+4. **Tagging** - Add tags to subjects for better organization
+5. **Progress History** - Track progress over time
+6. **Multiple Catalogs** - Support different learning paths
+7. **Collaboration** - Share subjects/resources with others
+8. **Mobile Optimization** - Better responsive design
+9. **Offline PWA** - Service worker for offline access
+10. **Undo/Redo** - Action history for mistake recovery
+
+### Architecture Improvements
+
+1. **Modularization** - Split app.js into modules
+2. **State Management** - More structured state handling
+3. **Event Bus** - Decouple components with event system
+4. **Testing** - Add unit and integration tests
+5. **Build Process** - Minification and optimization
+
+## Quick Start Guide
+
+### For Continuing Development
+
+1. **Read this file completely** - Understand the architecture
+2. **Review data model** - Understanding the data structure is key
+3. **Check modal patterns** - Most features use the modal pattern
+4. **Test thoroughly** - Changes to data model need careful testing
+5. **Update CLAUDE.md** - Document significant changes here
+
+### Common Tasks
+
+**Add a new field to subjects:**
+```javascript
+// 1. Update default subject structure in data/subjects.js
+// 2. Add migration logic in migrateDataV1ToV2()
+// 3. Update renderSubjectCard() to display it
+// 4. Update openSubjectDetail() to populate modal
+// 5. Update saveSubjectDetail() to save it
+```
+
+**Add a new modal:**
+```javascript
+// 1. Add HTML in index.html
+// 2. Create openXModal() function
+// 3. Create closeXModal() function
+// 4. Create saveXModal() function
+// 5. Add event listeners in DOMContentLoaded
+// 6. Add click-outside-to-close handler
+```
+
+**Add a new view:**
+```javascript
+// 1. Add navigation button in index.html
+// 2. Add case in switchView() function
+// 3. Add render logic in render() function
+// 4. Add any view-specific functions
+// 5. Update saveView() and loadView()
+```
+
+## Migration History
+
+### v1 → v2
+
+- Converted status values: "not-started" → "empty", "in-progress" → "partial", "completed" → "complete"
+- Added `goal`, `resources`, `projects`, `notepad` fields to subjects
+- Migrated old notes from `subjectNotes` localStorage key to subject.notepad
+- Created `expandedState` localStorage key (now legacy)
+- Set `dataVersion` to "v2"
+
+## Contact & Support
+
+This is a personal learning tracker project. For questions or contributions, refer to the GitHub repository (if applicable) or contact the project maintainer.
+
+---
+
+**Last Updated**: 2025-11-29
+**Current Version**: v2
+**Total Lines of Code**: ~2000 (HTML + JS + CSS)

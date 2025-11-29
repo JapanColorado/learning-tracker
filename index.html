@@ -3,193 +3,178 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Learning Path Tracker</title>
+    <title>Polymathica</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
-        <h1>Learning Path Tracker</h1>
-        <p class="subtitle">Track your progress through 87 subjects across mathematics, sciences, and humanities</p>
-
-        <div class="legend">
-            <div class="legend-title">📖 How to Read This Tracker</div>
-            <div class="legend-items">
-                <div class="legend-item">
-                    <span class="legend-icon">🔴</span>
-                    <span><strong>Required Prerequisites:</strong> Must complete first</span>
-                </div>
-                <div class="legend-item">
-                    <span class="legend-icon">🟡</span>
-                    <span><strong>Recommended:</strong> Helpful but not essential</span>
-                </div>
-                <div class="legend-item">
-                    <span class="legend-icon">🔵</span>
-                    <span><strong>Best Learned With:</strong> Study concurrently</span>
-                </div>
-                <div class="legend-item">
-                    <span class="legend-icon">✅</span>
-                    <span><strong>Ready Badge:</strong> All required prereqs done</span>
-                </div>
-                <div class="legend-item">
-                    <span class="legend-icon">🔒</span>
-                    <span><strong>Locked:</strong> Missing required prerequisites</span>
-                </div>
-                <div class="legend-item">
-                    <span class="legend-icon">💚</span>
-                    <span><strong>Green glow:</strong> Ready to start now!</span>
-                </div>
+        <nav class="main-nav">
+            <div class="nav-brand">
+                <h1>Polymathica</h1>
             </div>
+            <div class="nav-separator">|</div>
+            <div class="nav-links">
+                <button class="nav-link active" data-view="dashboard">
+                    Dashboard
+                </button>
+                <button class="nav-link" data-view="catalog">
+                    Catalog
+                </button>
+            </div>
+            <div class="nav-separator">|</div>
+            <button class="theme-toggle nav-theme-toggle" id="themeToggle">☀️</button>
+        </nav>
+
+
+        <!-- Dashboard View Controls -->
+        <div class="view-section" id="dashboardView">
+            <p class="subtitle">Track your active learning journey</p>
         </div>
 
-        <div class="stats">
-            <div class="stat-card">
-                <h3>Total Subjects</h3>
-                <div class="number" id="totalSubjects">87</div>
+        <!-- Catalog View Controls -->
+        <div class="view-section hidden" id="catalogView">
+            <p class="subtitle">Browse all subjects across mathematics, sciences, and humanities</p>
+            <div class="controls">
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="Search subjects...">
+                </div>
+                <div class="filter-group">
+                    <select id="statusFilter">
+                        <option value="all">All Status</option>
+                        <option value="not-started">Not Started</option>
+                        <option value="in-progress">In Progress</option>
+                        <option value="completed">Completed</option>
+                    </select>
+                    <select id="categoryFilter">
+                        <option value="all">All Categories</option>
+                        <option value="mathematics">Mathematics</option>
+                        <option value="physics">Physics</option>
+                        <option value="chemistry">Chemistry & Biochemistry</option>
+                        <option value="biology">Biology</option>
+                        <option value="cs">Computer Science</option>
+                        <option value="economics">Economics & Finance</option>
+                        <option value="psychology">Psychology</option>
+                        <option value="philosophy">Philosophy</option>
+                        <option value="social">Social Sciences</option>
+                        <option value="health">Health Sciences</option>
+                    </select>
+                </div>
             </div>
-            <div class="stat-card">
-                <h3>Completed</h3>
-                <div class="number" id="completedCount">0</div>
-            </div>
-            <div class="stat-card">
-                <h3>In Progress</h3>
-                <div class="number" id="inProgressCount">0</div>
-            </div>
-            <div class="stat-card ready">
-                <h3>Ready to Start</h3>
-                <div class="number" id="readyCount">10</div>
-            </div>
-        </div>
-
-        <div class="progress-bar">
-            <div class="progress-fill" id="progressFill" style="width: 0%">0%</div>
-        </div>
-
-        <div class="controls">
-            <div class="search-box">
-                <input type="text" id="searchInput" placeholder="Search subjects...">
-            </div>
-            <div class="filter-group">
-                <select id="readinessFilter">
-                    <option value="all">All Readiness</option>
-                    <option value="ready">✅ Ready to Start</option>
-                    <option value="partial">⚠️ Partially Ready</option>
-                    <option value="locked">🔒 Locked</option>
-                </select>
-                <select id="statusFilter">
-                    <option value="all">All Status</option>
-                    <option value="not-started">Not Started</option>
-                    <option value="in-progress">In Progress</option>
-                    <option value="completed">Completed</option>
-                </select>
-                <select id="categoryFilter">
-                    <option value="all">All Categories</option>
-                    <option value="mathematics">Mathematics</option>
-                    <option value="physics">Physics</option>
-                    <option value="chemistry">Chemistry & Biochemistry</option>
-                    <option value="biology">Biology</option>
-                    <option value="cs">Computer Science</option>
-                    <option value="economics">Economics & Finance</option>
-                    <option value="psychology">Psychology</option>
-                    <option value="philosophy">Philosophy</option>
-                    <option value="social">Social Sciences</option>
-                    <option value="health">Health Sciences</option>
-                </select>
-            </div>
-            <button class="theme-toggle" id="themeToggle">
-                <span id="themeIcon">🌙</span>
-                <span id="themeText">Dark</span>
-            </button>
-            <button id="addSubjectBtn">+ Add Subject</button>
-            <button id="resetBtn">Reset All</button>
-            <button class="secondary" id="exportBtn">Export Progress</button>
         </div>
 
         <div id="content"></div>
 
-        <div id="notesModal" class="modal">
-            <div class="modal-content">
+        <!-- Subject Detail Modal -->
+        <div id="subjectDetailModal" class="modal">
+            <div class="modal-content large-modal">
                 <div class="modal-header">
-                    <div class="modal-title" id="modalTitle">Subject Notes</div>
-                    <button class="close-button" id="closeNotesBtn">&times;</button>
+                    <div class="modal-title" id="detailModalTitle">Subject Name</div>
+                    <button class="close-button" id="closeDetailBtn">&times;</button>
                 </div>
-                <div class="notes-tabs">
-                    <button class="notes-tab active" data-tab="edit">✏️ Edit</button>
-                    <button class="notes-tab" data-tab="preview">👁️ Preview</button>
+
+                <div class="detail-sections">
+                    <div class="detail-section">
+                        <label>Goal (Optional)</label>
+                        <textarea id="subjectGoal" placeholder="What do you want to achieve with this subject?"></textarea>
+                    </div>
+
+                    <div class="detail-section">
+                        <label>Resources</label>
+                        <div id="resourcesList"></div>
+                        <button class="add-resource-btn" id="addSubjectResourceBtn">+ Add Resource</button>
+                    </div>
+
+                    <div class="detail-section">
+                        <label>Projects</label>
+                        <div id="projectsList"></div>
+                        <button class="add-project-btn" id="addProjectBtn">+ Add Project</button>
+                    </div>
+
+                    <div class="detail-section">
+                        <label>Notepad</label>
+                        <div class="notepad-tabs">
+                            <button class="notepad-tab active" data-tab="edit" data-context="subject">Edit</button>
+                            <button class="notepad-tab" data-tab="preview" data-context="subject">Preview</button>
+                        </div>
+                        <textarea id="subjectNotepad" class="notepad-textarea" placeholder="Take notes in Markdown..."></textarea>
+                        <div id="subjectNotepadPreview" class="notepad-preview"></div>
+                    </div>
                 </div>
-                <div class="notes-content">
-                    <textarea id="notesTextarea" class="notes-textarea" placeholder="Add your notes using Markdown..."></textarea>
-                    <div id="notesPreview" class="notes-preview"></div>
-                </div>
+
                 <div class="modal-footer">
-                    <button class="secondary" id="cancelNotesBtn">Cancel</button>
-                    <button id="saveNotesBtn">Save Notes</button>
+                    <button class="secondary" id="cancelDetailBtn">Cancel</button>
+                    <button id="saveDetailBtn">Save</button>
                 </div>
             </div>
         </div>
 
-        <div id="subjectModal" class="modal">
-            <div class="modal-content" style="max-width: 900px;">
+        <!-- Resource Modal -->
+        <div id="resourceModal" class="modal">
+            <div class="modal-content">
                 <div class="modal-header">
-                    <div class="modal-title" id="subjectModalTitle">Add New Subject</div>
-                    <button class="close-button" id="closeSubjectBtn">&times;</button>
+                    <div class="modal-title">Add Resource</div>
+                    <button class="close-button" id="closeResourceBtn">&times;</button>
                 </div>
-                <div style="display: grid; gap: 15px;">
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                        <div>
-                            <label style="display: block; margin-bottom: 5px; font-weight: 600; color: var(--text-primary);">Subject Name</label>
-                            <input type="text" id="subjectName" placeholder="e.g., Advanced Topology" style="width: 100%;">
-                        </div>
-                        <div>
-                            <label style="display: block; margin-bottom: 5px; font-weight: 600; color: var(--text-primary);">Short Code</label>
-                            <input type="text" id="subjectId" placeholder="e.g., advtop" style="width: 100%;">
-                        </div>
+
+                <div class="detail-sections">
+                    <div class="detail-section">
+                        <label>Resource Title/Description</label>
+                        <input type="text" id="resourceText" placeholder="e.g., Introduction to Linear Algebra">
                     </div>
-                    <div>
-                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: var(--text-primary);">Field/Category</label>
-                        <select id="subjectField" style="width: 100%;">
-                            <option value="Mathematics">Mathematics</option>
-                            <option value="Physics">Physics</option>
-                            <option value="Chemistry & Biochemistry">Chemistry & Biochemistry</option>
-                            <option value="Biology & Life Sciences">Biology & Life Sciences</option>
-                            <option value="Computer Science">Computer Science</option>
-                            <option value="Economics & Finance">Economics & Finance</option>
-                            <option value="Psychology">Psychology</option>
-                            <option value="Philosophy">Philosophy</option>
-                            <option value="Social Sciences">Social Sciences</option>
-                            <option value="Health Sciences">Health Sciences</option>
-                            <option value="History & Humanities">History & Humanities</option>
-                            <option value="Languages">Languages</option>
-                            <option value="Interdisciplinary">Interdisciplinary</option>
-                            <option value="Other Subjects">Other Subjects</option>
-                        </select>
-                    </div>
-                    <div style="position: relative;">
-                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: var(--text-primary);">Required Prerequisites (comma-separated codes)</label>
-                        <input type="text" id="subjectPrereq" placeholder="e.g., calc3, linalg" style="width: 100%;" autocomplete="off">
-                        <div id="prereqSuggestions" class="autocomplete-suggestions"></div>
-                    </div>
-                    <div style="position: relative;">
-                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: var(--text-primary);">Recommended Prerequisites (comma-separated codes)</label>
-                        <input type="text" id="subjectSoft" placeholder="e.g., algebra, topology" style="width: 100%;" autocomplete="off">
-                        <div id="softSuggestions" class="autocomplete-suggestions"></div>
-                    </div>
-                    <div style="position: relative;">
-                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: var(--text-primary);">Corequisites (comma-separated codes)</label>
-                        <input type="text" id="subjectCoreq" placeholder="e.g., quantum, relativity" style="width: 100%;" autocomplete="off">
-                        <div id="coreqSuggestions" class="autocomplete-suggestions"></div>
-                    </div>
-                    <div>
-                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: var(--text-primary);">AI-Generated Summary (optional)</label>
-                        <div style="display: flex; gap: 10px; align-items: center;">
-                            <button type="button" id="generateSummaryBtn" class="secondary" style="flex-shrink: 0;">🤖 Generate Summary</button>
-                            <span id="summaryStatus" style="font-size: 13px; color: var(--text-secondary);"></span>
-                        </div>
+
+                    <div class="detail-section">
+                        <label>Link (Optional)</label>
+                        <input type="url" id="resourceUrl" placeholder="https://...">
                     </div>
                 </div>
+
                 <div class="modal-footer">
-                    <button class="secondary" id="cancelSubjectBtn">Cancel</button>
-                    <button class="secondary" id="deleteSubjectBtn" style="background: #e74c3c; display: none;">Delete Subject</button>
-                    <button id="saveSubjectBtn">Save Subject</button>
+                    <button class="secondary" id="cancelResourceBtn">Cancel</button>
+                    <button id="saveResourceBtn">Add Resource</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Project Detail Modal -->
+        <div id="projectDetailModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-title" id="projectModalTitle">Project Name</div>
+                    <button class="close-button" id="closeProjectBtn">&times;</button>
+                </div>
+
+                <div class="detail-sections">
+                    <div class="detail-section">
+                        <label>Name</label>
+                        <input type="text" id="projectName" placeholder="Project name">
+                    </div>
+
+                    <div class="detail-section">
+                        <label>Goal (Required)</label>
+                        <textarea id="projectGoal" placeholder="What is this project about?" required></textarea>
+                    </div>
+
+                    <div class="detail-section">
+                        <label>Resources</label>
+                        <div id="projectResourcesList"></div>
+                        <button class="add-project-resource-btn" id="addProjectResourceBtn">+ Add Resource</button>
+                    </div>
+
+                    <div class="detail-section">
+                        <label>Notepad</label>
+                        <div class="notepad-tabs">
+                            <button class="notepad-tab active" data-tab="edit" data-context="project">Edit</button>
+                            <button class="notepad-tab" data-tab="preview" data-context="project">Preview</button>
+                        </div>
+                        <textarea id="projectNotepad" class="notepad-textarea" placeholder="Project notes..."></textarea>
+                        <div id="projectNotepadPreview" class="notepad-preview"></div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button class="secondary" id="cancelProjectBtn">Cancel</button>
+                    <button class="secondary" id="deleteProjectBtn" style="background: #e74c3c;">Delete</button>
+                    <button id="saveProjectBtn">Save</button>
                 </div>
             </div>
         </div>

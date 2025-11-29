@@ -20,13 +20,11 @@ function findSubjectAndTier(subjectId) {
 // Global variables
 let subjects = JSON.parse(JSON.stringify(defaultSubjects));
 let subjectProgress = {};
-let expandedState = { subjects: [], projects: [] };
 let currentEditingSubject = null;
 let currentEditingProject = null;
 let currentResourceContext = null; // 'subject' or 'project'
 let tempProjectResources = []; // Temporary storage for new project resources
 let currentView = 'dashboard'; // 'dashboard' or 'catalog'
-// Note: expandedState is loaded for migration compatibility but no longer used
 
 // Load saved data
 function loadAllData() {
@@ -45,12 +43,6 @@ function loadAllData() {
         subjectProgress = JSON.parse(localStorage.getItem('subjectProgress')) || {};
     } catch (_) {
         subjectProgress = {};
-    }
-    // Expanded state
-    try {
-        expandedState = JSON.parse(localStorage.getItem('expandedState')) || { subjects: [], projects: [] };
-    } catch (_) {
-        expandedState = { subjects: [], projects: [] };
     }
 }
 

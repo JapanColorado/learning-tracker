@@ -127,7 +127,6 @@ Use the **Preview** tab to see rendered output.
 All data is stored in your browser's `localStorage`:
 - `subjects` - Subject data including goals, resources, projects
 - `subjectProgress` - Progress state for each subject
-- `dataVersion` - Currently "v2"
 - `theme` - "light" or "dark"
 - `currentView` - "dashboard" or "catalog"
 
@@ -138,8 +137,6 @@ To reset everything to defaults, open browser DevTools Console and run:
 ```javascript
 localStorage.removeItem('subjects');
 localStorage.removeItem('subjectProgress');
-localStorage.removeItem('dataVersion');
-localStorage.removeItem('expandedState');
 localStorage.removeItem('theme');
 localStorage.removeItem('currentView');
 location.reload();
@@ -221,14 +218,3 @@ Requires:
 ## License
 
 Personal use intended. Feel free to adapt and modify as needed.
-
-## Version
-
-**Current Version**: v2 (2025-11-29)
-
-**What's New in v2:**
-- Modal-based UI for adding resources and projects
-- Clickable resource links
-- Improved card design (content always visible)
-- Better progress tracking
-- Cleaner codebase

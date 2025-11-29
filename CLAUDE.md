@@ -28,9 +28,9 @@ learning-tracker/
 
 ## Data Model
 
-### Version 2 Structure
+### Data Structure
 
-The application uses a v2 data format with the following hierarchy:
+The application uses the following data hierarchy:
 
 ```javascript
 subjects = {
@@ -78,10 +78,8 @@ subjects = {
 
 - `subjects` - Subject data structure
 - `subjectProgress` - Map of subject IDs to progress states
-- `dataVersion` - Currently "v2"
 - `theme` - "light" or "dark"
 - `currentView` - "dashboard" or "catalog"
-- `expandedState` - Legacy (kept for migration compatibility)
 
 ## Key Features
 
@@ -148,7 +146,6 @@ Simple modal for adding resources:
 - `loadAllData()` - Loads subjects and progress from localStorage
 - `saveSubjects()` - Persists subjects to localStorage
 - `saveProgress()` - Persists progress to localStorage
-- `migrateDataV1ToV2()` - Handles migration from old format
 
 ### Rendering
 
@@ -204,10 +201,9 @@ Simple modal for adding resources:
    - Links are clickable when displayed
    - Can add resources to new projects before saving (uses `tempProjectResources`)
 
-5. **Progress state mapping**
-   - Old: "not-started", "in-progress", "completed"
-   - New: "empty", "partial", "complete"
-   - Migration handles conversion automatically
+5. **Progress states**
+   - Uses: "empty", "partial", "complete"
+   - Simple three-state system
 
 6. **Theme system**
    - Fixed icon reversal: ☀️ for light mode, 🌙 for dark mode
@@ -279,7 +275,6 @@ window.openSubjectDetail = openSubjectDetail;
 
 The codebase includes console.log statements in key functions (can be removed for production):
 - `[Init]` - Initialization process
-- `[Migration]` - Data migration steps
 - `[Render]` - Rendering process
 - `[Load]` - Data loading
 
@@ -288,7 +283,7 @@ The codebase includes console.log statements in key functions (can be removed fo
 ### Adding New Features
 
 1. **New modal**: Add HTML structure in index.html, create open/close/save functions
-2. **New data field**: Update data model, add migration logic, update save/load
+2. **New data field**: Update data model, update save/load functions
 3. **New view**: Add render logic in `render()`, add navigation
 4. **New filter**: Update `applyFilters()` function
 
@@ -302,10 +297,10 @@ The codebase includes console.log statements in key functions (can be removed fo
 ### Data Changes
 
 When modifying the data structure:
-1. Increment version (v2 → v3)
-2. Add migration function
-3. Test migration with existing v2 data
-4. Update localStorage keys if needed
+1. Update the data model in defaultSubjects
+2. Test thoroughly with existing data
+3. Consider if breaking changes require clearing localStorage
+4. Update documentation (CLAUDE.md and README.md)
 
 ## Future Considerations
 
@@ -345,10 +340,9 @@ When modifying the data structure:
 **Add a new field to subjects:**
 ```javascript
 // 1. Update default subject structure in data/subjects.js
-// 2. Add migration logic in migrateDataV1ToV2()
-// 3. Update renderSubjectCard() to display it
-// 4. Update openSubjectDetail() to populate modal
-// 5. Update saveSubjectDetail() to save it
+// 2. Update renderSubjectCard() to display it
+// 3. Update openSubjectDetail() to populate modal
+// 4. Update saveSubjectDetail() to save it
 ```
 
 **Add a new modal:**
@@ -370,16 +364,6 @@ When modifying the data structure:
 // 5. Update saveView() and loadView()
 ```
 
-## Migration History
-
-### v1 → v2
-
-- Converted status values: "not-started" → "empty", "in-progress" → "partial", "completed" → "complete"
-- Added `goal`, `resources`, `projects`, `notepad` fields to subjects
-- Migrated old notes from `subjectNotes` localStorage key to subject.notepad
-- Created `expandedState` localStorage key (now legacy)
-- Set `dataVersion` to "v2"
-
 ## Contact & Support
 
 This is a personal learning tracker project. For questions or contributions, refer to the GitHub repository (if applicable) or contact the project maintainer.
@@ -387,5 +371,4 @@ This is a personal learning tracker project. For questions or contributions, ref
 ---
 
 **Last Updated**: 2025-11-29
-**Current Version**: v2
-**Total Lines of Code**: ~2000 (HTML + JS + CSS)
+**Total Lines of Code**: ~1800 (HTML + JS + CSS)

@@ -25,6 +25,7 @@ let currentEditingProject = null;
 let currentResourceContext = null; // 'subject' or 'project'
 let tempProjectResources = []; // Temporary storage for new project resources
 let currentView = 'dashboard'; // 'dashboard' or 'catalog'
+let viewMode = 'public'; // 'public' or 'owner'
 
 // Load saved data
 function loadAllData() {
@@ -53,6 +54,103 @@ function saveSubjects() {
 
 function saveProgress() {
     localStorage.setItem('subjectProgress', JSON.stringify(subjectProgress));
+}
+
+// GitHub sync integration
+async function loadDataFromGitHub() {
+    if (!window.githubStorage || !window.githubAuth || !githubAuth.isAuthenticated()) {
+        console.log('[App] Not authenticated, using localStorage only');
+        return false;
+    }
+
+    try {
+        console.log('[App] Loading data from GitHub...');
+        const userData = await githubStorage.loadUserData();
+
+        // Apply user data
+        if (userData.progress) {
+            subjectProgress = userData.progress;
+        }
+        if (userData.subjects) {
+            // Merge user customizations with default catalog
+            subjects = JSON.parse(JSON.stringify(defaultSubjects));
+            for (const tierData of Object.values(subjects)) {
+                for (const subject of tierData.subjects) {
+                    const userSubjectData = userData.subjects[subject.id];
+                    if (userSubjectData) {
+                        Object.assign(subject, userSubjectData);
+                    }
+                }
+            }
+        }
+        if (userData.theme) {
+            document.documentElement.setAttribute('data-theme', userData.theme);
+            updateThemeButton(userData.theme);
+        }
+        if (userData.currentView) {
+            currentView = userData.currentView;
+        }
+
+        console.log('[App] Data loaded from GitHub successfully');
+        return true;
+    } catch (error) {
+        console.error('[App] Failed to load from GitHub:', error);
+        return false;
+    }
+}
+
+async function saveDataToGitHub() {
+    if (!window.githubStorage || !window.githubAuth || !githubAuth.isAuthenticated()) {
+        console.log('[App] Not authenticated, saving to localStorage only');
+        saveSubjects();
+        saveProgress();
+        return false;
+    }
+
+    try {
+        console.log('[App] Saving data to GitHub...');
+
+        // Build user data structure
+        const userData = {
+            version: '2.0',
+            lastModified: new Date().toISOString(),
+            progress: subjectProgress,
+            subjects: {},
+            theme: document.documentElement.getAttribute('data-theme') || 'light',
+            currentView: currentView
+        };
+
+        // Extract only user-customized data (goals, resources, projects, notepads)
+        for (const tierData of Object.values(subjects)) {
+            for (const subject of tierData.subjects) {
+                const userCustomizations = {};
+                if (subject.goal) userCustomizations.goal = subject.goal;
+                if (subject.resources && subject.resources.length > 0) userCustomizations.resources = subject.resources;
+                if (subject.projects && subject.projects.length > 0) userCustomizations.projects = subject.projects;
+                if (subject.notepad) userCustomizations.notepad = subject.notepad;
+
+                if (Object.keys(userCustomizations).length > 0) {
+                    userData.subjects[subject.id] = userCustomizations;
+                }
+            }
+        }
+
+        await githubStorage.saveUserData(userData);
+
+        // Also save to localStorage as backup
+        saveSubjects();
+        saveProgress();
+
+        updateSyncStatus();
+        console.log('[App] Data saved to GitHub successfully');
+        return true;
+    } catch (error) {
+        console.error('[App] Failed to save to GitHub:', error);
+        // Still save to localStorage
+        saveSubjects();
+        saveProgress();
+        return false;
+    }
 }
 
 // Removed: saveExpandedState - no longer using expandable cards
@@ -177,47 +275,7 @@ function calculateReadiness(subject) {
 }
 
 // Stats calculation
-function calculateStats() {
-    let total = 0;
-    let completed = 0;
-    let inProgress = 0;
-    let ready = 0;
-    
-    Object.values(subjects).forEach(tier => {
-        tier.subjects.forEach(subject => {
-            total++;
-            const progress = getSubjectProgress(subject.id);
-            if (progress === 'complete') completed++;
-            if (progress === 'partial') inProgress++;
-
-            if (progress === 'empty') {
-                const readiness = calculateReadiness(subject);
-                if (readiness === 'ready') {
-                    ready++;
-                }
-            }
-        });
-    });
-    
-    return {
-        total,
-        completed,
-        inProgress,
-        notStarted: total - completed - inProgress,
-        ready,
-        percentage: total > 0 ? Math.round((completed / total) * 100) : 0
-    };
-}
-
-function updateStats() {
-    const stats = calculateStats();
-    document.getElementById('totalSubjects').textContent = stats.total;
-    document.getElementById('completedCount').textContent = stats.completed;
-    document.getElementById('inProgressCount').textContent = stats.inProgress;
-    document.getElementById('readyCount').textContent = stats.ready;
-    document.getElementById('progressFill').style.width = stats.percentage + '%';
-    document.getElementById('progressFill').textContent = stats.percentage + '%';
-}
+// Removed: calculateStats() and updateStats() - old UI stats display (not used)
 
 function calculateTierProgress(tier) {
     let total = tier.subjects.length;
@@ -519,7 +577,7 @@ function saveResource() {
             renderResourcesList(tempProjectResources, 'projectResourcesList', 'project');
         } else {
             // Adding resource to existing project
-            const projectIndex = parseInt(currentEditingProject.split('-')[1]);
+            const projectIndex = parseInt(currentEditingProject.split('-').pop());
             const subject = findSubject(currentEditingSubject);
             if (!subject || !subject.projects || !subject.projects[projectIndex]) return;
             const project = subject.projects[projectIndex];
@@ -548,7 +606,7 @@ function removeResource(index, type) {
             renderResourcesList(tempProjectResources, 'projectResourcesList', 'project');
         } else {
             // Removing from existing project
-            const projectIndex = parseInt(currentEditingProject.split('-')[1]);
+            const projectIndex = parseInt(currentEditingProject.split('-').pop());
             const subject = findSubject(currentEditingSubject);
             if (!subject || !subject.projects || !subject.projects[projectIndex] || !subject.projects[projectIndex].resources) return;
             subject.projects[projectIndex].resources.splice(index, 1);
@@ -667,7 +725,7 @@ function saveProjectDetail() {
         tempProjectResources = []; // Clear temporary resources
     } else {
         // Editing existing project
-        const projectIndex = parseInt(currentEditingProject.split('-')[1]);
+        const projectIndex = parseInt(currentEditingProject.split('-').pop());
         if (!subject.projects || !subject.projects[projectIndex]) return;
         const project = subject.projects[projectIndex];
         project.name = name;
@@ -684,7 +742,7 @@ function saveProjectDetail() {
 function deleteCurrentProject() {
     if (!currentEditingProject) return;
     if (!confirm('Delete this project? This cannot be undone.')) return;
-    const projectIndex = parseInt(currentEditingProject.split('-')[1]);
+    const projectIndex = parseInt(currentEditingProject.split('-').pop());
     const subject = findSubject(currentEditingSubject);
     if (!subject || !subject.projects) return;
     subject.projects.splice(projectIndex, 1);
@@ -731,6 +789,135 @@ function updateNotepadPreview(context) {
     }
 }
 
+// ==========================================
+// Authentication & Sync UI
+// ==========================================
+
+async function updateViewMode() {
+    if (window.githubAuth && await githubAuth.isOwner()) {
+        viewMode = CONFIG.app.viewModes.OWNER;
+    } else {
+        viewMode = CONFIG.app.viewModes.PUBLIC;
+    }
+    render();
+}
+
+function updateAuthButton() {
+    const authButton = document.getElementById('authButton');
+    const syncStatus = document.getElementById('syncStatus');
+
+    if (window.githubAuth && githubAuth.isAuthenticated()) {
+        authButton.textContent = githubAuth.username || 'Signed In';
+        authButton.classList.add('signed-in');
+        authButton.onclick = () => {
+            if (confirm('Sign out?')) {
+                githubAuth.logout();
+            }
+        };
+        syncStatus.classList.remove('hidden');
+    } else {
+        authButton.textContent = 'Sign In';
+        authButton.classList.remove('signed-in');
+        authButton.onclick = openAuthModal;
+        syncStatus.classList.add('hidden');
+    }
+}
+
+function updateSyncStatus() {
+    if (!window.githubStorage) return;
+
+    const syncStatus = document.getElementById('syncStatus');
+    const syncStatusText = document.getElementById('syncStatusText');
+    const status = githubStorage.getSyncStatus();
+
+    syncStatus.className = 'sync-status';
+    if (status.status === 'offline') {
+        syncStatus.classList.add('hidden');
+    } else {
+        syncStatus.classList.remove('hidden');
+        syncStatusText.textContent = status.message;
+
+        if (status.status === 'syncing') {
+            syncStatus.classList.add('syncing');
+        } else if (status.status === 'error') {
+            syncStatus.classList.add('error');
+        } else if (status.status === 'synced') {
+            syncStatus.classList.add('success');
+        }
+    }
+}
+
+function openAuthModal() {
+    document.getElementById('authModal').classList.add('active');
+    document.getElementById('githubToken').value = '';
+    document.getElementById('githubToken').focus();
+}
+
+function closeAuthModal() {
+    document.getElementById('authModal').classList.remove('active');
+}
+
+async function saveToken() {
+    const token = document.getElementById('githubToken').value.trim();
+
+    if (!token) {
+        alert('Please enter a token');
+        return;
+    }
+
+    if (!window.githubAuth) {
+        alert('GitHub auth system not initialized');
+        return;
+    }
+
+    // Set the token
+    githubAuth.setToken(token);
+
+    // Validate it
+    const isValid = await githubAuth.validateToken();
+    if (!isValid) {
+        alert('Invalid token. Please check and try again.');
+        githubAuth.clearAuthData();
+        return;
+    }
+
+    // Check if user is owner
+    const isOwner = await githubAuth.isOwner();
+    if (!isOwner) {
+        alert(`You are signed in as ${githubAuth.username}, but this tracker belongs to ${CONFIG.github.repoOwner}. You can view but not edit.`);
+    }
+
+    closeAuthModal();
+    updateAuthButton();
+    await updateViewMode();
+
+    // Load data from GitHub
+    const loaded = await loadDataFromGitHub();
+    if (loaded) {
+        render();
+    }
+
+    // Start auto-sync
+    if (window.githubStorage && CONFIG.features.enableAutoSync) {
+        githubStorage.startAutoSync();
+    }
+}
+
+async function manualSync() {
+    if (!window.githubStorage || !window.githubAuth || !githubAuth.isAuthenticated()) {
+        alert('Please sign in first');
+        return;
+    }
+
+    try {
+        updateSyncStatus();
+        await saveDataToGitHub();
+        alert('Sync complete!');
+    } catch (error) {
+        alert('Sync failed: ' + error.message);
+    }
+}
+
 // Make functions globally accessible for inline onclick handlers
 window.cycleProgress = cycleProgress;
 window.openSubjectDetail = openSubjectDetail;
@@ -773,4 +960,48 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('cancelResourceBtn').addEventListener('click', closeResourceModal);
     document.getElementById('saveResourceBtn').addEventListener('click', saveResource);
     document.getElementById('resourceModal').addEventListener('click', (e) => { if (e.target.id === 'resourceModal') closeResourceModal(); });
+
+    // Auth modal event listeners
+    document.getElementById('authButton').addEventListener('click', openAuthModal);
+    document.getElementById('closeAuthBtn').addEventListener('click', closeAuthModal);
+    document.getElementById('cancelAuthBtn').addEventListener('click', closeAuthModal);
+    document.getElementById('saveTokenBtn').addEventListener('click', saveToken);
+    document.getElementById('authModal').addEventListener('click', (e) => { if (e.target.id === 'authModal') closeAuthModal(); });
+
+    // Enter key to submit token
+    document.getElementById('githubToken').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') saveToken();
+    });
+
+    // Sync status - click to manually sync
+    document.getElementById('syncStatus').addEventListener('click', manualSync);
+
+    // Initialize auth state
+    if (window.githubAuth) {
+        updateAuthButton();
+
+        // If already authenticated, load from GitHub and update view mode
+        if (githubAuth.isAuthenticated()) {
+            (async () => {
+                await updateViewMode();
+                const loaded = await loadDataFromGitHub();
+                if (loaded) {
+                    render();
+                }
+                // Start auto-sync
+                if (window.githubStorage && CONFIG.features.enableAutoSync) {
+                    githubStorage.startAutoSync();
+                }
+            })();
+        }
+    }
+
+    // Save to GitHub on page unload (if authenticated)
+    if (CONFIG.app.syncOnUnload) {
+        window.addEventListener('beforeunload', () => {
+            if (window.githubAuth && githubAuth.isAuthenticated()) {
+                saveDataToGitHub();
+            }
+        });
+    }
 });

@@ -23,6 +23,14 @@
             </div>
             <div class="nav-separator">|</div>
             <button class="theme-toggle nav-theme-toggle" id="themeToggle">☀️</button>
+            <div class="nav-separator">|</div>
+            <div class="auth-controls">
+                <button class="auth-button" id="authButton">Sign In</button>
+                <div class="sync-status hidden" id="syncStatus">
+                    <span class="sync-icon">⟳</span>
+                    <span id="syncStatusText">Synced</span>
+                </div>
+            </div>
         </nav>
 
 
@@ -178,6 +186,35 @@
                 </div>
             </div>
         </div>
+
+        <!-- Auth Token Modal -->
+        <div id="authModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-title">Sign In with GitHub</div>
+                    <button class="close-button" id="closeAuthBtn">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p>To enable sync across devices, you need a GitHub Personal Access Token.</p>
+                    <div class="detail-section">
+                        <label>GitHub Personal Access Token</label>
+                        <input type="password" id="githubToken" placeholder="ghp_xxxxxxxxxxxx">
+                        <p class="help-text">
+                            Don't have a token?
+                            <a href="https://github.com/settings/tokens/new?description=Polymathica%20Learning%20Tracker&scopes=repo" target="_blank">
+                                Create one here
+                            </a>
+                            <br>
+                            <small>Required scope: <code>repo</code></small>
+                        </p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="save-button" id="saveTokenBtn">Sign In</button>
+                    <button class="cancel-button" id="cancelAuthBtn">Cancel</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- External JavaScript Dependencies -->
@@ -186,6 +223,11 @@
     <!-- Data Files -->
     <script src="data/subjects.js"></script>
     <script src="data/summaries.js"></script>
+
+    <!-- GitHub Integration -->
+    <script src="config.js"></script>
+    <script src="auth.js"></script>
+    <script src="storage.js"></script>
 
     <!-- Main Application -->
     <script src="app.js"></script>

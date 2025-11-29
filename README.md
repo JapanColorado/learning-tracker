@@ -66,11 +66,11 @@ start index.html
 ```
 learning-tracker/
 ├── index.html          # Main application (modals, structure)
-├── app.js              # Core logic (~800 lines)
+├── app.js              # Core logic (~750 lines)
 ├── styles.css          # Complete styling (light/dark themes)
 ├── data/
 │   ├── subjects.js     # Default subject catalog
-│   └── summaries.js    # Subject descriptions (optional)
+│   └── summaries.js    # Subject summaries (for future use)
 ├── CLAUDE.md          # Detailed technical documentation
 └── README.md          # This file
 ```

@@ -8,14 +8,14 @@ Polymathica is a web-based learning tracker application designed to help users o
 
 ### File Structure
 
-```
+```text
 learning-tracker/
 ├── index.html          # Main HTML structure with modals
-├── app.js              # Core application logic (~800 lines)
+├── app.js              # Core application logic (~750 lines)
 ├── styles.css          # Complete styling (dark/light theme support)
 ├── data/
 │   ├── subjects.js     # Default subject catalog (Mathematics, Physics, etc.)
-│   └── summaries.js    # Subject summaries/descriptions
+│   └── summaries.js    # Subject summaries (reserved for future use)
 └── CLAUDE.md          # This file
 ```
 
@@ -371,4 +371,4 @@ This is a personal learning tracker project. For questions or contributions, ref
 ---
 
 **Last Updated**: 2025-11-29
-**Total Lines of Code**: ~1800 (HTML + JS + CSS)
+**Total Lines of Code**: ~1750 (HTML + JS + CSS)

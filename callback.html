@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authenticating - Polymathica</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            max-width: 600px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .status.info {
+            background: #e3f2fd;
+            color: #1976d2;
+            border-left: 4px solid #1976d2;
+        }
+
+        .status.error {
+            background: #ffebee;
+            color: #c62828;
+            border-left: 4px solid #c62828;
+        }
+
+        .status.success {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border-left: 4px solid #2e7d32;
+        }
+
+        .instructions {
+            margin: 20px 0;
+            line-height: 1.6;
+            color: #555;
+        }
+
+        .instructions h2 {
+            font-size: 18px;
+            margin: 20px 0 10px;
+            color: #333;
+        }
+
+        .instructions ol {
+            margin-left: 20px;
+        }
+
+        .instructions li {
+            margin: 8px 0;
+        }
+
+        .code {
+            background: #f5f5f5;
+            padding: 12px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: background 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .button:hover {
+            background: #5568d3;
+        }
+
+        .button.secondary {
+            background: #6c757d;
+        }
+
+        .button.secondary:hover {
+            background: #5a6268;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Setting up Authentication</h1>
+
+        <div id="loading" style="display: none;">
+            <div class="spinner"></div>
+            <p style="text-align: center; color: #666;">Processing...</p>
+        </div>
+
+        <div id="oauth-notice" class="status info">
+            <p><strong>Note:</strong> GitHub OAuth requires a server to complete the authentication flow securely. Since Polymathica is a static site, we'll use Personal Access Tokens instead.</p>
+        </div>
+
+        <div class="instructions">
+            <h2>Create a Personal Access Token</h2>
+            <ol>
+                <li>Go to <a href="https://github.com/settings/tokens/new" target="_blank"><strong>GitHub Settings → Developer settings → Personal access tokens → Tokens (classic)</strong></a></li>
+                <li>Click <strong>"Generate new token (classic)"</strong></li>
+                <li>Give it a note like: <code class="code">Polymathica Learning Tracker</code></li>
+                <li>Set expiration to <strong>"No expiration"</strong> (or your preference)</li>
+                <li>Select the <strong>"repo"</strong> scope (full control of private repositories)</li>
+                <li>Click <strong>"Generate token"</strong></li>
+                <li>Copy the token (you won't be able to see it again!)</li>
+            </ol>
+
+            <h2>Save Your Token</h2>
+            <p>Once you have your token, return to Polymathica and paste it in the authentication dialog.</p>
+        </div>
+
+        <div style="margin-top: 30px; text-align: center;">
+            <a href="index.html" class="button">Return to Polymathica</a>
+            <a href="https://github.com/settings/tokens/new" target="_blank" class="button secondary">Create Token on GitHub</a>
+        </div>
+    </div>
+
+    <script>
+        // Check if there's an OAuth code in the URL (won't work without server)
+        const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get('code');
+        const state = urlParams.get('state');
+        const error = urlParams.get('error');
+
+        if (error) {
+            document.getElementById('oauth-notice').className = 'status error';
+            document.getElementById('oauth-notice').innerHTML = `
+                <p><strong>OAuth Error:</strong> ${error}</p>
+                <p>${urlParams.get('error_description') || 'Please try again or use a Personal Access Token.'}</p>
+            `;
+        } else if (code) {
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('oauth-notice').innerHTML = `
+                <p><strong>OAuth Code Received</strong></p>
+                <p>However, we need a server to exchange this code for a token. Please use a Personal Access Token instead.</p>
+            `;
+            setTimeout(() => {
+                document.getElementById('loading').style.display = 'none';
+            }, 2000);
+        }
+    </script>
+</body>
+</html>

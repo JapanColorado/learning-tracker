@@ -697,6 +697,11 @@ input[type="text"] {
     animation: fadeIn 0.3s;
 }
 
+/* Resource modal should appear above other modals */
+#resourceModal {
+    z-index: 1100;
+}
+
 @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
@@ -1121,4 +1126,182 @@ input[type="text"] {
         max-height: 90vh;
         padding: 20px;
     }
+}
+
+/* ==========================================
+   Authentication & Sync UI
+   ========================================== */
+
+.auth-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.auth-button {
+    padding: 6px 14px;
+    background: var(--primary-color, #667eea);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background 0.2s;
+}
+
+.auth-button:hover {
+    background: var(--primary-dark, #5568d3);
+}
+
+.auth-button.signed-in {
+    background: var(--success-color, #27ae60);
+}
+
+.auth-button.signed-in:hover {
+    background: var(--success-dark, #229954);
+}
+
+.sync-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    padding: 4px 10px;
+    background: var(--bg-secondary);
+    border-radius: 4px;
+}
+
+.sync-status.hidden {
+    display: none;
+}
+
+.sync-icon {
+    font-size: 16px;
+    animation: none;
+}
+
+.sync-status.syncing .sync-icon {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.sync-status.error {
+    color: var(--error-color, #e74c3c);
+}
+
+.sync-status.success {
+    color: var(--success-color, #27ae60);
+}
+
+/* Auth Modal Styles */
+.help-text {
+    margin-top: 8px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+.help-text a {
+    color: var(--primary-color, #667eea);
+    text-decoration: none;
+}
+
+.help-text a:hover {
+    text-decoration: underline;
+}
+
+.help-text small {
+    font-size: 12px;
+}
+
+.help-text code {
+    background: var(--bg-tertiary);
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+}
+
+#githubToken {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+#githubToken:focus {
+    outline: none;
+    border-color: var(--primary-color, #667eea);
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.save-button,
+.cancel-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background 0.2s;
+}
+
+.save-button {
+    background: var(--primary-color, #667eea);
+    color: white;
+}
+
+.save-button:hover {
+    background: var(--primary-dark, #5568d3);
+}
+
+.cancel-button {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+}
+
+.cancel-button:hover {
+    background: var(--border-dark);
+}
+
+/* Public view indicator */
+.public-view-banner {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 12px 20px;
+    text-align: center;
+    font-size: 14px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.public-view-banner a {
+    color: white;
+    text-decoration: underline;
+    font-weight: 600;
+}
+
+.public-view-banner a:hover {
+    text-decoration: none;
 }

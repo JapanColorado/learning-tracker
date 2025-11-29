@@ -1,7 +1,10 @@
 {
   "version": "2.0",
-  "lastModified": "2025-11-29T19:24:19.658Z",
-  "progress": {},
+  "lastModified": "2025-11-29T19:25:13.630Z",
+  "progress": {
+    "calc1": "complete",
+    "calc2": "complete"
+  },
   "subjects": {
     "calc2": {
       "goal": "asdfas"

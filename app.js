@@ -62,16 +62,12 @@ async function loadPublicDataFromGitHub() {
         console.log('[App] Loading public data from GitHub...');
         // Use raw URL with cache-busting timestamp
         // Note: GitHub API requires auth, so we use raw.githubusercontent.com for public access
+        // We use only the query parameter for cache-busting to avoid CORS preflight issues
         const rawUrl = `https://raw.githubusercontent.com/${CONFIG.github.repoOwner}/${CONFIG.github.repoName}/${CONFIG.github.branch}/data/user-data.json`;
         const cacheBust = `?t=${Date.now()}`;
         console.log('[App] Fetching from:', rawUrl + cacheBust);
 
-        const response = await fetch(rawUrl + cacheBust, {
-            cache: 'no-store', // Force bypass cache
-            headers: {
-                'Cache-Control': 'no-cache'
-            }
-        });
+        const response = await fetch(rawUrl + cacheBust);
 
         console.log('[App] Response status:', response.status);
         if (!response.ok) {
@@ -419,7 +415,7 @@ function renderSubjectCard(subject) {
     if (isPublicMode) {
         return `
             <div class="${cardClasses}" data-id="${subject.id}">
-                <div class="subject-card-header">
+                <div class="subject-card-header" onclick="openSubjectDetail('${subject.id}', event)" style="cursor: pointer;">
                     <span class="subject-name">${subject.name}</span>
                     <div class="progress-checkbox ${progress}" style="pointer-events: none;"></div>
                 </div>
@@ -599,10 +595,40 @@ function openSubjectDetail(subjectId, event) {
     currentEditingSubject = subjectId;
     const subject = findSubject(subjectId);
     if (!subject) return;
+
+    const isPublicMode = viewMode === 'public';
+
     document.getElementById('detailModalTitle').textContent = subject.name;
-    document.getElementById('subjectGoal').value = subject.goal || '';
+
+    // Goal field
+    const goalField = document.getElementById('subjectGoal');
+    goalField.value = subject.goal || '';
+    goalField.readOnly = isPublicMode;
+
+    // Resources list
     renderResourcesList(subject.resources || [], 'resourcesList', 'subject');
+
+    // Projects list
     renderProjectsList(subject.projects || []);
+
+    // Show/hide edit controls based on mode
+    const addResourceBtn = document.getElementById('addSubjectResourceBtn');
+    const addProjectBtn = document.getElementById('addProjectBtn');
+    const saveBtn = document.getElementById('saveDetailBtn');
+    const cancelBtn = document.getElementById('cancelDetailBtn');
+
+    if (isPublicMode) {
+        addResourceBtn.style.display = 'none';
+        addProjectBtn.style.display = 'none';
+        saveBtn.style.display = 'none';
+        cancelBtn.style.display = 'none';
+    } else {
+        addResourceBtn.style.display = 'block';
+        addProjectBtn.style.display = 'block';
+        saveBtn.style.display = 'inline-block';
+        cancelBtn.style.display = 'inline-block';
+    }
+
     document.getElementById('subjectDetailModal').classList.add('active');
 }
 
@@ -625,6 +651,7 @@ function saveSubjectDetail() {
 // Resource Management
 function renderResourcesList(resources, containerId, type) {
     const container = document.getElementById(containerId);
+    const isPublicMode = viewMode === 'public';
 
     if (!resources || resources.length === 0) {
         container.innerHTML = '<p class="empty-state">No resources yet</p>';
@@ -636,10 +663,12 @@ function renderResourcesList(resources, containerId, type) {
             `<a href="${resource.url}" target="_blank" rel="noopener" class="resource-link">${resource.value}</a>` :
             `<span class="resource-text">${resource.value}</span>`;
 
+        const deleteButton = isPublicMode ? '' : `<button class="remove-btn" onclick="removeResource(${index}, '${type}')">×</button>`;
+
         return `
             <div class="resource-item">
                 ${displayContent}
-                <button class="remove-btn" onclick="removeResource(${index}, '${type}')">×</button>
+                ${deleteButton}
             </div>
         `;
     }).join('');
@@ -730,24 +759,36 @@ function removeResource(index, type) {
 // Project Management
 function renderProjectsList(projects) {
     const container = document.getElementById('projectsList');
+    const isPublicMode = viewMode === 'public';
 
     if (!projects || projects.length === 0) {
         container.innerHTML = '<p class="empty-state">No projects yet</p>';
         return;
     }
 
-    container.innerHTML = projects.map((project, index) => `
-        <div class="project-item">
-            <div class="project-header">
-                <span class="project-name">${project.name}</span>
-                <div class="project-actions">
-                    <span class="project-status-badge">${project.status}</span>
-                    <button onclick="editProject(${index}, event)">Edit</button>
-                    <button class="remove-btn" onclick="removeProject(${index}, event)">Delete</button>
+    container.innerHTML = projects.map((project, index) => {
+        const actions = isPublicMode
+            ? `<span class="project-status-badge">${project.status}</span>`
+            : `
+                <span class="project-status-badge">${project.status}</span>
+                <button onclick="editProject(${index}, event)">Edit</button>
+                <button class="remove-btn" onclick="removeProject(${index}, event)">Delete</button>
+            `;
+
+        const clickHandler = isPublicMode ? `onclick="viewProject(${index}, event)"` : ``;
+        const cursorStyle = isPublicMode ? `style="cursor: pointer;"` : ``;
+
+        return `
+            <div class="project-item" ${clickHandler} ${cursorStyle}>
+                <div class="project-header">
+                    <span class="project-name">${project.name}</span>
+                    <div class="project-actions">
+                        ${actions}
+                    </div>
                 </div>
             </div>
-        </div>
-    `).join('');
+        `;
+    }).join('');
 }
 
 function addProject() {
@@ -782,9 +823,47 @@ function editProject(projectIndex, event) {
     document.getElementById('projectModalTitle').textContent = 'Edit Project';
     document.getElementById('projectName').value = project.name;
     document.getElementById('projectGoal').value = project.goal;
+
+    // Make fields editable (owner mode)
+    document.getElementById('projectName').readOnly = false;
+    document.getElementById('projectGoal').readOnly = false;
+
     renderResourcesList(project.resources || [], 'projectResourcesList', 'project');
-    document.getElementById('projectDetailModal').classList.add('active');
+
+    // Show all edit controls (owner mode)
+    document.getElementById('addProjectResourceBtn').style.display = 'block';
+    document.getElementById('saveProjectBtn').style.display = 'inline-block';
+    document.getElementById('cancelProjectBtn').style.display = 'inline-block';
     document.getElementById('deleteProjectBtn').style.display = 'inline-block';
+
+    document.getElementById('projectDetailModal').classList.add('active');
+}
+
+function viewProject(projectIndex, event) {
+    if (event) event.stopPropagation();
+    if (!currentEditingSubject) return;
+    currentEditingProject = `${currentEditingSubject}-${projectIndex}`;
+    const subject = findSubject(currentEditingSubject);
+    if (!subject || !subject.projects || !subject.projects[projectIndex]) return;
+    const project = subject.projects[projectIndex];
+
+    document.getElementById('projectModalTitle').textContent = project.name;
+    document.getElementById('projectName').value = project.name;
+    document.getElementById('projectGoal').value = project.goal;
+
+    // Make fields read-only (public mode)
+    document.getElementById('projectName').readOnly = true;
+    document.getElementById('projectGoal').readOnly = true;
+
+    renderResourcesList(project.resources || [], 'projectResourcesList', 'project');
+
+    // Hide all edit controls (public mode)
+    document.getElementById('addProjectResourceBtn').style.display = 'none';
+    document.getElementById('saveProjectBtn').style.display = 'none';
+    document.getElementById('cancelProjectBtn').style.display = 'none';
+    document.getElementById('deleteProjectBtn').style.display = 'none';
+
+    document.getElementById('projectDetailModal').classList.add('active');
 }
 
 function removeProject(projectIndex, event) {
@@ -990,6 +1069,7 @@ async function manualSync() {
 window.cycleProgress = cycleProgress;
 window.openSubjectDetail = openSubjectDetail;
 window.editProject = editProject;
+window.viewProject = viewProject;
 window.removeProject = removeProject;
 window.removeResource = removeResource;
 window.switchView = switchView;

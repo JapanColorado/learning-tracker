@@ -60,28 +60,32 @@ function saveProgress() {
 async function loadPublicDataFromGitHub() {
     try {
         console.log('[App] Loading public data from GitHub...');
-        // Use GitHub API to avoid raw URL caching issues
-        const apiUrl = `https://api.github.com/repos/${CONFIG.github.repoOwner}/${CONFIG.github.repoName}/contents/data/user-data.json`;
+        // Use raw URL with cache-busting timestamp
+        // Note: GitHub API requires auth, so we use raw.githubusercontent.com for public access
+        const rawUrl = `https://raw.githubusercontent.com/${CONFIG.github.repoOwner}/${CONFIG.github.repoName}/${CONFIG.github.branch}/data/user-data.json`;
+        const cacheBust = `?t=${Date.now()}`;
+        console.log('[App] Fetching from:', rawUrl + cacheBust);
 
-        const response = await fetch(apiUrl, {
+        const response = await fetch(rawUrl + cacheBust, {
+            cache: 'no-store', // Force bypass cache
             headers: {
-                'Accept': 'application/vnd.github.v3+json'
+                'Cache-Control': 'no-cache'
             }
         });
 
+        console.log('[App] Response status:', response.status);
         if (!response.ok) {
             console.log('[App] No public data file found');
             return false;
         }
 
-        const fileData = await response.json();
-        // Decode base64 content
-        const content = atob(fileData.content.replace(/\n/g, ''));
-        const userData = JSON.parse(content);
+        const userData = await response.json();
+        console.log('[App] Parsed user data:', userData);
 
         // Apply user data
         if (userData.progress) {
             subjectProgress = userData.progress;
+            console.log('[App] Applied progress:', subjectProgress);
         }
         if (userData.subjects) {
             // Merge user customizations with default catalog
@@ -94,6 +98,7 @@ async function loadPublicDataFromGitHub() {
                     }
                 }
             }
+            console.log('[App] Merged subject customizations');
         }
 
         console.log('[App] Public data loaded successfully');
@@ -1055,11 +1060,12 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             // Not authenticated - load public data for read-only view
             (async () => {
+                console.log('[Init] Not authenticated, loading public data...');
                 viewMode = 'public';
                 const loaded = await loadPublicDataFromGitHub();
-                if (loaded) {
-                    render();
-                }
+                console.log('[Init] Public data loaded:', loaded);
+                // Always render, even if loading failed (will show empty state)
+                render();
             })();
         }
     }

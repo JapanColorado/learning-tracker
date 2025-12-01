@@ -1497,7 +1497,6 @@ async function updateViewMode() {
 
 function updateAuthButton() {
     const authButton = document.getElementById('authButton');
-    const syncStatus = document.getElementById('syncStatus');
 
     if (window.githubAuth && githubAuth.isAuthenticated()) {
         authButton.textContent = githubAuth.username || 'Signed In';
@@ -1507,12 +1506,10 @@ function updateAuthButton() {
                 githubAuth.logout();
             }
         };
-        syncStatus.classList.remove('hidden');
     } else {
         authButton.textContent = 'Sign In';
         authButton.classList.remove('signed-in');
         authButton.onclick = openAuthModal;
-        syncStatus.classList.add('hidden');
     }
 }
 
@@ -2177,9 +2174,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('cancelCreateSubjectBtn').addEventListener('click', closeCreateSubjectModal);
     document.getElementById('saveNewSubjectBtn').addEventListener('click', saveNewSubject);
     document.getElementById('createSubjectModal').addEventListener('click', (e) => { if (e.target.id === 'createSubjectModal') closeCreateSubjectModal(); });
-
-    // Sync status - click to manually sync
-    document.getElementById('syncStatus').addEventListener('click', manualSync);
 
     // Initialize auth state
     if (window.githubAuth) {

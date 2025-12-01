@@ -1,6 +1,6 @@
 {
   "schema": "3.0",
-  "lastModified": "2025-12-01T19:14:02.594Z",
+  "lastModified": "2025-12-01T19:15:24.057Z",
   "progress": {
     "calc1": "complete",
     "calc2": "partial",
@@ -10,6 +10,17 @@
   "overlays": {
     "calc2": {
       "goal": "Memorize essential integral techniques; polar coordinates; and sequences, series, and convergence/divergence tests."
+    },
+    "electromagnetism": {
+      "projects": [
+        {
+          "id": "electromagnetism-project-1764616522777",
+          "name": "Write up PHYS 132 summary",
+          "goal": "Explain the essentials of electromagnetism and optics, and have something to showcase for PHYS 132.",
+          "resources": [],
+          "status": "not-started"
+        }
+      ]
     }
   },
   "theme": "dark",

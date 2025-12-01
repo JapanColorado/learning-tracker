@@ -1501,7 +1501,9 @@ function updateAuthButton() {
     if (window.githubAuth && githubAuth.isAuthenticated()) {
         authButton.textContent = githubAuth.username || 'Signed In';
         authButton.classList.add('signed-in');
-        authButton.onclick = () => {
+        authButton.onclick = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
             if (confirm('Sign out?')) {
                 githubAuth.logout();
             }
@@ -1509,7 +1511,11 @@ function updateAuthButton() {
     } else {
         authButton.textContent = 'Sign In';
         authButton.classList.remove('signed-in');
-        authButton.onclick = openAuthModal;
+        authButton.onclick = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            openAuthModal();
+        };
     }
 }
 

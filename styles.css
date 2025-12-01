@@ -91,8 +91,8 @@ h1 {
 .nav-links {
     display: flex;
     gap: 10px;
-    flex: 1;
-    justify-content: center;
+    margin-left: auto;
+    margin-right: 20px;
 }
 
 .nav-link {
@@ -122,13 +122,6 @@ h1 {
     background: #2980b9;
 }
 
-.nav-separator {
-    color: var(--text-secondary);
-    font-size: 18px;
-    user-select: none;
-    padding: 0 5px;
-}
-
 .nav-theme-toggle {
     flex-shrink: 0;
     background: transparent;
@@ -141,6 +134,104 @@ h1 {
 
 .nav-theme-toggle:hover {
     transform: scale(1.1);
+}
+
+.settings-button {
+    flex-shrink: 0;
+    background: transparent;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 5px 10px;
+    transition: transform 0.3s;
+}
+
+.settings-button:hover {
+    transform: scale(1.1);
+}
+
+.button-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.action-button {
+    padding: 12px 20px;
+    background: #3498db;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+
+.action-button:hover {
+    background: #2980b9;
+}
+
+.danger-zone {
+    margin-top: 30px;
+    padding: 20px;
+    border: 2px solid #e74c3c;
+    border-radius: 8px;
+    background: rgba(231, 76, 60, 0.05);
+}
+
+[data-theme="dark"] .danger-zone {
+    background: rgba(231, 76, 60, 0.1);
+}
+
+.danger-title {
+    color: #e74c3c;
+    margin-bottom: 10px;
+}
+
+.reset-confirmation {
+    margin: 15px 0;
+}
+
+.reset-confirmation label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.reset-confirmation input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    font-size: 14px;
+}
+
+.danger-button {
+    width: 100%;
+    padding: 12px 20px;
+    background: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+
+.danger-button:hover {
+    background: #c0392b;
+}
+
+.danger-button:disabled {
+    background: #95a5a6;
+    cursor: not-allowed;
+    opacity: 0.6;
 }
 
 .view-section {
@@ -193,6 +284,23 @@ h1 {
     display: flex;
     gap: 10px;
     align-items: center;
+}
+
+.create-subject-button {
+    padding: 10px 16px;
+    background: #27ae60;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    white-space: nowrap;
+}
+
+.create-subject-button:hover {
+    background: #229954;
 }
 
 select, button, input {
@@ -292,6 +400,11 @@ button.secondary:hover {
     overflow: hidden;
 }
 
+.subject-card:hover:not(.expanded) {
+    transform: scale(1.01);
+    box-shadow: 0 2px 8px var(--shadow-hover);
+}
+
 .subject-card.empty {
     border-left: 4px solid #95a5a6;
 }
@@ -316,13 +429,8 @@ button.secondary:hover {
     gap: 12px;
     padding: 15px;
     padding-right: 50px;
-    cursor: pointer;
     user-select: none;
     position: relative;
-}
-
-.subject-card-header:hover {
-    background: var(--bg-tertiary);
 }
 
 .subject-header-content {
@@ -479,7 +587,7 @@ button.secondary:hover {
 }
 
 .project-mini-card:hover {
-    transform: translateX(4px);
+    transform: scale(1.02);
     box-shadow: 0 2px 8px var(--shadow-hover);
 }
 
@@ -508,10 +616,9 @@ button.secondary:hover {
     border: 2px solid var(--border-dark);
     border-radius: 3px;
     background: var(--bg-secondary);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    cursor: pointer;
     flex-shrink: 0;
+    position: relative;
 }
 
 .project-progress-checkbox.empty {
@@ -525,7 +632,11 @@ button.secondary:hover {
 
 .project-progress-checkbox.partial::after {
     content: '';
-    width: 8px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 10px;
     height: 2px;
     background: #f39c12;
 }
@@ -536,14 +647,23 @@ button.secondary:hover {
 
 .project-progress-checkbox.complete {
     border-color: #27ae60;
-    background: #27ae60;
+    background: #d4edda;
 }
 
 .project-progress-checkbox.complete::after {
-    content: '✓';
-    color: white;
-    font-size: 12px;
-    font-weight: bold;
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 5px;
+    width: 4px;
+    height: 8px;
+    border: solid #27ae60;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+.project-progress-checkbox:hover {
+    opacity: 0.8;
 }
 
 /* Dependencies in Card */
@@ -781,7 +901,7 @@ input[type="text"] {
 .detail-section {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
 }
 
 .detail-section label {
@@ -823,22 +943,285 @@ input[type="text"] {
     border-color: #3498db;
 }
 
+/* Inline Goal Layout */
+.detail-section.goal-section-inline {
+    display: flex;
+    flex-direction: row !important;
+    align-items: flex-start;
+    gap: 15px;
+}
+
+.goal-section-inline label {
+    flex-shrink: 0;
+    width: 80px;
+    padding-top: 12px;
+    font-weight: 600;
+}
+
+.goal-section-inline textarea {
+    flex: 1;
+}
+
+/* Section Header with Inline Add Button */
+.section-header-inline {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.add-btn-inline.small {
+    padding: 4px 12px;
+    font-size: 12px;
+    background: #27ae60;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+
+.add-btn-inline.small:hover {
+    background: #229954;
+}
+
+/* Dependencies Display in Modal */
+.dependencies-display {
+    padding: 10px;
+    background: var(--bg-secondary);
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+}
+
+.dep-section {
+    margin-bottom: 8px;
+}
+
+.dep-section:last-child {
+    margin-bottom: 0;
+}
+
+.dep-tag {
+    display: inline-block;
+    padding: 3px 8px;
+    margin: 2px 4px 2px 0;
+    border-radius: 3px;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.dep-tag.prereq {
+    background: #e8f4f8;
+    color: #2c3e50;
+    border: 1px solid #3498db;
+}
+
+[data-theme="dark"] .dep-tag.prereq {
+    background: #1a3a4a;
+    color: #7fb3d5;
+    border: 1px solid #5dade2;
+}
+
+.dep-tag.coreq {
+    background: #fef5e7;
+    color: #7d6608;
+    border: 1px solid #f39c12;
+}
+
+[data-theme="dark"] .dep-tag.coreq {
+    background: #3a2f1a;
+    color: #f8c471;
+    border: 1px solid #f5b041;
+}
+
+.dep-tag.soft {
+    background: #e8f8f5;
+    color: #0e6655;
+    border: 1px solid #16a085;
+}
+
+[data-theme="dark"] .dep-tag.soft {
+    background: #1a3a34;
+    color: #76d7c4;
+    border: 1px solid #48c9b0;
+}
+
+/* Dashboard Enhanced Layout */
+.dashboard-current-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+@media (max-width: 1200px) {
+    .dashboard-current-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Expanded Subject Cards */
+.subject-card.expanded {
+    padding: 20px;
+    min-height: 250px;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.subject-card.expanded:hover {
+    transform: scale(1.01);
+    box-shadow: 0 4px 12px var(--shadow-hover);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.card-header .progress-checkbox {
+    position: static;
+}
+
+.subject-title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.summary-section {
+    font-style: italic;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+}
+
+.summary-text {
+    margin: 0;
+    line-height: 1.5;
+    font-size: 14px;
+}
+
+/* Inline Resources Display */
+.resources-list-inline {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 6px;
+}
+
+.resource-link-inline,
+.resource-text-inline {
+    font-size: 13px;
+    padding: 3px 8px;
+    background: var(--bg-secondary);
+    border-radius: 3px;
+    border: 1px solid var(--border-color);
+}
+
+.resource-link-inline {
+    color: #3498db;
+    text-decoration: none;
+}
+
+.resource-link-inline:hover {
+    background: #e8f4f8;
+}
+
+.more-indicator {
+    font-size: 12px;
+    color: var(--text-secondary);
+    padding: 3px 8px;
+}
+
+/* Expanded Projects Display */
+.projects-list-expanded {
+    margin-top: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.project-card-expanded {
+    padding: 12px;
+    background: var(--bg-secondary);
+    border-radius: 6px;
+    border-left: 3px solid var(--border-color);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.project-card-expanded:hover {
+    transform: scale(1.02);
+    box-shadow: 0 2px 8px var(--shadow-hover);
+}
+
+.project-card-expanded.empty {
+    border-left-color: #95a5a6;
+}
+
+.project-card-expanded.partial {
+    border-left-color: #f39c12;
+    background: var(--card-progress-bg);
+}
+
+.project-card-expanded.complete {
+    border-left-color: #27ae60;
+    background: var(--card-complete-bg);
+}
+
+.project-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+.project-name {
+    font-weight: 600;
+    flex: 1;
+}
+
+.project-goal {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+    line-height: 1.4;
+}
+
+.project-resources-mini {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.resource-link-mini {
+    font-size: 12px;
+    color: #3498db;
+    text-decoration: none;
+}
+
+.resource-link-mini:hover {
+    text-decoration: underline;
+}
+
 /* Resources in Modal */
 #resourcesList,
 #projectResourcesList {
     display: flex;
-    flex-direction: column;
+    flex-wrap: wrap;
     gap: 8px;
 }
 
 .resource-item-edit {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     gap: 10px;
-    padding: 10px;
+    padding: 8px 12px;
+    min-height: 36px;
     background: var(--bg-tertiary);
     border-radius: 5px;
     border: 1px solid var(--border-color);
+    max-width: fit-content;
 }
 
 .resource-item-edit a {
@@ -870,6 +1253,13 @@ input[type="text"] {
     font-size: 12px;
     cursor: pointer;
     flex-shrink: 0;
+    margin-left: auto;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
 }
 
 .remove-resource-btn:hover {
@@ -1075,10 +1465,11 @@ input[type="text"] {
 
 /* Auth Modal Styles */
 .help-text {
-    margin-top: 8px;
-    font-size: 13px;
+    margin-top: -4px;
+    margin-bottom: 4px;
+    font-size: 12px;
     color: var(--text-secondary);
-    line-height: 1.5;
+    line-height: 1.4;
 }
 
 .help-text a {
@@ -1088,6 +1479,59 @@ input[type="text"] {
 
 .help-text a:hover {
     text-decoration: underline;
+}
+
+/* Autocomplete Styles */
+.autocomplete-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.autocomplete-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    max-height: 200px;
+    overflow-y: auto;
+    background: var(--bg-secondary);
+    border: 2px solid #3498db;
+    border-top: none;
+    border-radius: 0 0 5px 5px;
+    z-index: 1000;
+    display: none;
+}
+
+.autocomplete-suggestions.active {
+    display: block;
+}
+
+.autocomplete-suggestion {
+    padding: 10px 12px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border-color);
+    transition: background 0.2s;
+}
+
+.autocomplete-suggestion:last-child {
+    border-bottom: none;
+}
+
+.autocomplete-suggestion:hover,
+.autocomplete-suggestion.selected {
+    background: var(--bg-tertiary);
+}
+
+.autocomplete-suggestion .suggestion-id {
+    font-family: monospace;
+    font-weight: 600;
+    color: #3498db;
+}
+
+.autocomplete-suggestion .suggestion-name {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-left: 8px;
 }
 
 .help-text small {

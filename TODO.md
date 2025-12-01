@@ -1,5 +1,27 @@
 # TODO
 
+- Test subject creation, reset feature, data import/export
+- Make setting page only show up on owner mode
+- Move sync and theme toggle to inside settings page, move cog icon to farthest right
+- Make theme toggle look better
+- Restore the dashboard view capability on public mode
+- Review codebase, simplify where possible
+- Split app.js into more useful sub-files
+- Organize and clean repo
+- Revise subject pre-reqs/co-reqs/recommendeds and subject IDs
+- Store summaries and subjects in a better way than JSON if possible
+- Current custom subjects/default subjects separation is clunky, I wonder if there's a better way...maybe using owner mode github access to write custom subjects directly to a subjects data file? I'm not sure.
+  - Add button to delete subject in the expanded catalog view (requires owner view and are you sure?)
+- Make scrollbar pretty
+
+## Done
+
+- Revise subject summaries to have no formatting
+- Fix resources being unaddable in projects
+  - Resource adding modal appears below project modal
+  - Resources don't get assigned to projects correctly
+- Brainstorm with Claude a way to host on Github Pages or something similar, with a non-editable, less-detailed view I can share with other people and a view for me that it how it is now, ie. editable.
+  - Likely need to rework data storage, especially with user-editable subjects.
 - Add buttons should be small, inline and to the right of the Resources/Projects buttons in the subject expanded view
 - The expanded view should have the following:
   - Subject Name
@@ -24,11 +46,3 @@
 - Add reset-all button (include danger warning, must type in "Polymathica")
 - Add subject creation feature
   - Include AI-generated short subject summaries
-
-## Done
-
-- Fix resources being unaddable in projects
-  - Resource adding modal appears below project modal
-  - Resources don't get assigned to projects correctly
-- Brainstorm with Claude a way to host on Github Pages or something similar, with a non-editable, less-detailed view I can share with other people and a view for me that it how it is now, ie. editable.
-  - Likely need to rework data storage, especially with user-editable subjects.

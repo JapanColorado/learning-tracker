@@ -1,11 +1,12 @@
 {
   "version": "2.0",
-  "lastModified": "2025-11-30T18:51:31.574Z",
+  "lastModified": "2025-12-01T02:50:59.476Z",
   "progress": {
     "calc1": "complete",
     "calc2": "partial",
     "calc3": "partial",
-    "discrete": "partial"
+    "discrete": "partial",
+    "blah-blah": "empty"
   },
   "subjects": {
     "calc2": {
@@ -25,8 +26,10 @@
           "status": "not-started"
         }
       ]
+    },
+    "blah-blah": {
+      "goal": "asdfas"
     }
   },
-  "theme": "dark",
-  "currentView": "dashboard"
+  "theme": "dark"
 }

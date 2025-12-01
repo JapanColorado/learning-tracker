@@ -301,7 +301,7 @@ async function saveDataToGitHub() {
         };
 
         // Extract user data: overlays and custom subjects
-        for (const [tierName, tierData] of Object.values(subjects)) {
+        for (const [tierName, tierData] of Object.entries(subjects)) {
             for (const subject of tierData.subjects) {
                 if (subject.isCustom) {
                     // This is a custom subject - save full definition

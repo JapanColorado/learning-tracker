@@ -11,15 +11,14 @@ Polymathica is a web-based learning tracker application designed to help users o
 ```text
 learning-tracker/
 ├── index.html          # Main HTML structure with modals
-├── app.js              # Core application logic (~1080 lines)
+├── app.js              # Core application logic (~1900 lines)
 ├── styles.css          # Complete styling (dark/light theme support)
 ├── auth.js             # GitHub authentication handler (Personal Access Tokens)
 ├── storage.js          # GitHub API storage adapter for data sync
 ├── config.js           # Public configuration (repo owner, OAuth client ID)
 ├── callback.html       # OAuth callback page (guides PAT setup)
 ├── data/
-│   ├── subjects.js     # Default subject catalog (Mathematics, Physics, etc.)
-│   ├── summaries.js    # Subject summaries (reserved for future use)
+│   ├── catalog.json    # Subject catalog with integrated summaries (schema 3.0)
 │   └── user-data.json  # User's personal data (synced via GitHub)
 ├── CLAUDE.md           # This file
 ├── README.md           # User-facing documentation
@@ -44,64 +43,120 @@ learning-tracker/
 
 ## Data Model
 
-### Subject Catalog Structure
+### Subject Catalog Structure (Schema 3.0)
 
-The default subject catalog is defined in `data/subjects.js`:
+The subject catalog is defined in `data/catalog.json` with integrated summaries:
 
 ```javascript
-subjects = {
-  "Tier Name": {
-    category: "string",         // e.g., "stem", "humanities"
-    subjects: [
-      {
-        id: "string",           // Unique identifier
-        name: "string",         // Display name
-        prereq: ["id"],         // Required prerequisites
-        coreq: ["id"],          // Co-requisites
-        soft: ["id"]            // Soft dependencies
+{
+  "schema": "3.0",
+  "catalogVersion": "2025-12-01",
+  "lastUpdated": "2025-12-01T03:31:17.873Z",
+  "metadata": {
+    "totalSubjects": 118,
+    "totalTiers": 14
+  },
+  "tiers": {
+    "Mathematics": {
+      "category": "mathematics",
+      "order": 1,                 // Display order
+      "subjects": {
+        "calc1": {                // Subject ID (keyed, not array)
+          "name": "Calculus 1 (Limits, Derivatives, Basic Integration)",
+          "prereq": [],           // Required prerequisites
+          "coreq": [],            // Co-requisites
+          "soft": [],             // Soft dependencies
+          "summary": "# Calculus 1\n\nFoundation of calculus..."
+        },
+        "calc2": {
+          "name": "Calculus 2 (Integration Techniques, Series, Sequences)",
+          "prereq": ["calc1"],
+          "coreq": [],
+          "soft": [],
+          "summary": "# Calculus 2\n\nAdvanced integration..."
+        }
+        // ... more subjects keyed by ID
       }
-    ]
+    }
+    // ... more tiers
   }
 }
 ```
 
-### User Data Structure
+**Key Changes from v2.0:**
+
+- **Keyed Structure**: Subjects stored as objects with ID keys instead of arrays (O(1) vs O(n) lookup)
+- **Integrated Summaries**: Summaries merged directly into subject definitions
+- **Schema Versioning**: Explicit schema version for future-proof data handling
+- **Tier Ordering**: Explicit `order` field for tier display sequence
+
+### User Data Structure (Schema 3.0)
 
 User-specific data is stored in `data/user-data.json` and synced via GitHub:
 
 ```javascript
 {
-  "version": "2.0",
-  "lastModified": "2025-11-30T02:14:32.387Z",
+  "schema": "3.0",
+  "lastModified": "2025-12-01T03:31:17.873Z",
   "progress": {
-    "subject-id": "partial",    // "empty", "partial", or "complete"
-    "subject-id-2": "complete"
+    "calc1": "complete",
+    "calc2": "partial",
+    "ml": "empty"
   },
-  "subjects": {
-    "subject-id": {
-      "goal": "User's personal goal",
+  "overlays": {
+    // Customizations for catalog subjects (non-custom)
+    "calc2": {
+      "goal": "Master integration techniques for physics applications",
       "resources": [
         {
-          "type": "link",       // "link" or "text"
-          "value": "Resource title",
-          "url": "https://..."  // Optional URL if type=link
+          "type": "link",
+          "value": "MIT OpenCourseWare - Calculus 2",
+          "url": "https://..."
         }
       ],
       "projects": [
         {
-          "id": "unique-id",
-          "name": "Project name",
-          "goal": "Project goal (required)",
-          "resources": [],      // Same structure as subject resources
-          "status": "not-started" // "not-started", "in-progress", "completed"
+          "id": "proj-123",
+          "name": "Physics Problem Set",
+          "goal": "Apply integration to solve physics problems",
+          "resources": [],
+          "status": "in-progress"
         }
       ]
     }
   },
-  "theme": "dark",              // "light" or "dark"
-  "currentView": "catalog"      // "dashboard" or "catalog"
+  "customSubjects": {
+    // User-created subjects (full definitions)
+    "my-custom-topic": {
+      "name": "Advanced Machine Learning",
+      "tier": "Computer Science",
+      "prereq": ["ml", "linalg"],
+      "coreq": [],
+      "soft": ["prob"],
+      "summary": "My custom summary...",
+      "goal": "Build production ML systems",
+      "resources": [...],
+      "projects": [...]
+    }
+  },
+  "customTiers": {
+    // User-created tiers
+    "Personal Projects": {
+      "category": "custom",
+      "order": 999
+    }
+  },
+  "theme": "dark"
 }
 ```
+
+**Key Changes from v2.0:**
+
+- **`overlays`**: Stores customizations (goal, resources, projects) for catalog subjects
+- **`customSubjects`**: Stores full definitions of user-created subjects with `isCustom` flag
+- **`customTiers`**: Stores user-created tier definitions
+- **Clean Separation**: Catalog subjects (immutable) vs user overlays (mutable)
+- **Summary Handling**: Catalog summaries are read-only; custom subjects can have editable summaries
 
 **Note**: Notepad functionality was removed for privacy reasons. User data is public in the repository.
 
@@ -376,6 +431,44 @@ async function saveDataToGitHub() {
 - `applyFilters()` - Applies search and filter criteria in catalog view
 
 ## Recent Major Changes
+
+### v3.0 - Unified Data Architecture (2025-12-01)
+
+1. **Unified Catalog File**
+   - Merged `data/subjects.js` + `data/summaries.js` → `data/catalog.json`
+   - Integrated summaries directly into subject definitions
+   - Single source of truth for catalog data
+
+2. **Keyed Subject Structure**
+   - Changed from array-based to object-keyed subjects
+   - O(1) subject lookup instead of O(n) iteration
+   - Subjects stored as `{ "subjectId": {...} }` instead of `[{id: "subjectId", ...}]`
+
+3. **Schema-Based Data Model**
+   - Explicit schema versioning (`"schema": "3.0"`)
+   - Future-proof data format with validation
+   - Graceful handling of version mismatches
+
+4. **Overlay Pattern for Customizations**
+   - Catalog subjects (immutable) separated from user customizations (mutable)
+   - `overlays` field stores goal/resources/projects for catalog subjects
+   - `customSubjects` field stores full definitions of user-created subjects
+   - `customTiers` field supports user-defined tier categories
+
+5. **Custom Subject Management**
+   - User-created subjects marked with `isCustom: true` flag
+   - Editable summaries for custom subjects only
+   - Catalog summaries are read-only and display integrated content
+
+6. **Improved Data Loading**
+   - New `loadCatalog()` function loads catalog.json
+   - New `mergeCatalogWithUserData()` merges catalog with user overlays
+   - Cleaner separation of concerns in data layer
+
+7. **Updated Export/Import**
+   - Export includes schema v3.0 format
+   - Import validates schema version and provides warnings
+   - Backwards compatibility warnings for older formats
 
 ### v2.0 - GitHub Integration & Public Viewing
 
@@ -689,6 +782,6 @@ This is a personal learning tracker project. For questions, issues, or contribut
 
 ---
 
-**Last Updated**: 2025-11-30
-**Version**: 2.0 (GitHub Integration)
+**Last Updated**: 2025-12-01
+**Version**: 3.0 (Unified Data Architecture)
 **Total Lines of Code**: ~2500 (HTML + JS + CSS)

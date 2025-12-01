@@ -18,7 +18,7 @@ function findSubjectAndTier(subjectId) {
 }
 
 // Global variables
-let subjects = JSON.parse(JSON.stringify(defaultSubjects));
+let subjects = {};
 let subjectProgress = {};
 let currentEditingSubject = null;
 let currentEditingProject = null;
@@ -27,17 +27,137 @@ let tempProjectResources = []; // Temporary storage for new project resources
 let currentView = 'dashboard'; // 'dashboard' or 'catalog'
 let viewMode = 'public'; // 'public' or 'owner'
 
-// Load saved data
+// Load catalog from catalog.json
+async function loadCatalog() {
+    try {
+        const response = await fetch('data/catalog.json');
+        if (!response.ok) {
+            throw new Error(`Failed to load catalog: ${response.status}`);
+        }
+        const catalog = await response.json();
+
+        // Validate schema version
+        if (catalog.schema !== '3.0') {
+            throw new Error(`Unsupported catalog schema version: ${catalog.schema}`);
+        }
+
+        console.log('[App] Loaded catalog v' + catalog.catalogVersion + ' with ' + catalog.metadata.totalSubjects + ' subjects');
+        return catalog;
+    } catch (error) {
+        console.error('[App] Failed to load catalog:', error);
+        throw error;
+    }
+}
+
+// Merge catalog with user data
+function mergeCatalogWithUserData(catalog, userData) {
+    const subjects = {};
+
+    // 1. Build subjects from catalog (convert keyed objects → arrays for compatibility)
+    for (const [tierName, tierData] of Object.entries(catalog.tiers)) {
+        subjects[tierName] = {
+            category: tierData.category,
+            order: tierData.order,
+            subjects: []
+        };
+
+        // Convert keyed subjects to array
+        for (const [id, subjectDef] of Object.entries(tierData.subjects)) {
+            subjects[tierName].subjects.push({
+                id: id,
+                name: subjectDef.name,
+                prereq: subjectDef.prereq || [],
+                coreq: subjectDef.coreq || [],
+                soft: subjectDef.soft || [],
+                summary: subjectDef.summary || '',
+                goal: null,
+                resources: [],
+                projects: [],
+                isCustom: false
+            });
+        }
+    }
+
+    // 2. Apply user overlays (customizations to catalog subjects)
+    if (userData && userData.overlays) {
+        for (const [subjectId, overlay] of Object.entries(userData.overlays)) {
+            const subject = findSubjectById(subjects, subjectId);
+            if (subject) {
+                if (overlay.goal !== undefined) subject.goal = overlay.goal;
+                if (overlay.resources !== undefined) subject.resources = overlay.resources;
+                if (overlay.projects !== undefined) subject.projects = overlay.projects;
+            }
+        }
+    }
+
+    // 3. Add custom tiers (if any)
+    if (userData && userData.customTiers) {
+        for (const [tierName, tierData] of Object.entries(userData.customTiers)) {
+            if (!subjects[tierName]) {
+                subjects[tierName] = {
+                    category: tierData.category || 'custom',
+                    order: tierData.order || 999,
+                    subjects: []
+                };
+            }
+        }
+    }
+
+    // 4. Add custom subjects
+    if (userData && userData.customSubjects) {
+        for (const [subjectId, customSubject] of Object.entries(userData.customSubjects)) {
+            const tierName = customSubject.tier || 'Other Subjects';
+
+            // Ensure tier exists
+            if (!subjects[tierName]) {
+                subjects[tierName] = {
+                    category: 'custom',
+                    order: 999,
+                    subjects: []
+                };
+            }
+
+            // Add the custom subject
+            subjects[tierName].subjects.push({
+                id: subjectId,
+                name: customSubject.name,
+                prereq: customSubject.prereq || [],
+                coreq: customSubject.coreq || [],
+                soft: customSubject.soft || [],
+                summary: customSubject.summary || '',
+                goal: customSubject.goal || null,
+                resources: customSubject.resources || [],
+                projects: customSubject.projects || [],
+                isCustom: true
+            });
+        }
+    }
+
+    return subjects;
+}
+
+// Helper: Find subject by ID in merged subjects
+function findSubjectById(subjects, id) {
+    for (const tierData of Object.values(subjects)) {
+        const subject = tierData.subjects.find(s => s.id === id);
+        if (subject) return subject;
+    }
+    return null;
+}
+
+// Load saved data (legacy localStorage fallback - deprecated)
+// This function is kept for backwards compatibility but should not be used
+// Data loading now happens via loadCatalog() and mergeCatalogWithUserData()
 function loadAllData() {
-    // Subjects
+    // Subjects - load from localStorage cache if available
     try {
         const savedSubjects = localStorage.getItem('subjects');
-        subjects = savedSubjects ? JSON.parse(savedSubjects) : JSON.parse(JSON.stringify(defaultSubjects));
+        subjects = savedSubjects ? JSON.parse(savedSubjects) : {};
         if (!subjects || Object.keys(subjects).length === 0) {
-            subjects = JSON.parse(JSON.stringify(defaultSubjects));
+            subjects = {};
         }
     } catch (_) {
-        subjects = JSON.parse(JSON.stringify(defaultSubjects));
+        subjects = {};
     }
     // Progress
     try {
@@ -60,40 +180,44 @@ function saveProgress() {
 async function loadPublicDataFromGitHub() {
     try {
         console.log('[App] Loading public data from GitHub...');
-        // Use GitHub Pages URL instead of raw.githubusercontent.com for better cache control
-        // GitHub Pages respects cache-busting query parameters better than raw CDN
+
+        // Load catalog first
+        const catalog = await loadCatalog();
+
+        // Load user data from GitHub Pages
         const pagesUrl = `https://${CONFIG.github.repoOwner}.github.io/${CONFIG.github.repoName}/data/user-data.json`;
         const cacheBust = `?t=${Date.now()}`;
-        console.log('[App] Fetching from:', pagesUrl + cacheBust);
+        console.log('[App] Fetching user data from:', pagesUrl + cacheBust);
 
         const response = await fetch(pagesUrl + cacheBust);
 
         console.log('[App] Response status:', response.status);
         if (!response.ok) {
-            console.log('[App] No public data file found');
-            return false;
+            console.log('[App] No public data file found, using catalog only');
+            // Use catalog with no user customizations
+            subjects = mergeCatalogWithUserData(catalog, null);
+            subjectProgress = {};
+            return true;
         }
 
         const userData = await response.json();
         console.log('[App] Parsed user data:', userData);
 
-        // Apply user data
+        // Validate schema version (if present)
+        if (userData.schema && userData.schema !== '3.0') {
+            console.warn('[App] User data schema mismatch:', userData.schema);
+        }
+
+        // Merge catalog with user data
+        subjects = mergeCatalogWithUserData(catalog, userData);
+        console.log('[App] Merged catalog with user data');
+
+        // Apply progress
         if (userData.progress) {
             subjectProgress = userData.progress;
             console.log('[App] Applied progress:', subjectProgress);
-        }
-        if (userData.subjects) {
-            // Merge user customizations with default catalog
-            subjects = JSON.parse(JSON.stringify(defaultSubjects));
-            for (const tierData of Object.values(subjects)) {
-                for (const subject of tierData.subjects) {
-                    const userSubjectData = userData.subjects[subject.id];
-                    if (userSubjectData) {
-                        Object.assign(subject, userSubjectData);
-                    }
-                }
-            }
-            console.log('[App] Merged subject customizations');
+        } else {
+            subjectProgress = {};
         }
 
         console.log('[App] Public data loaded successfully');
@@ -113,31 +237,37 @@ async function loadDataFromGitHub() {
 
     try {
         console.log('[App] Loading data from GitHub...');
+
+        // Load catalog first
+        const catalog = await loadCatalog();
+
+        // Load user data from GitHub API
         const userData = await githubStorage.loadUserData();
 
-        // Apply user data
+        // Validate schema version (if present)
+        if (userData.schema && userData.schema !== '3.0') {
+            console.warn('[App] User data schema mismatch:', userData.schema);
+        }
+
+        // Merge catalog with user data
+        subjects = mergeCatalogWithUserData(catalog, userData);
+        console.log('[App] Merged catalog with user data');
+
+        // Apply progress
         if (userData.progress) {
             subjectProgress = userData.progress;
+        } else {
+            subjectProgress = {};
         }
-        if (userData.subjects) {
-            // Merge user customizations with default catalog
-            subjects = JSON.parse(JSON.stringify(defaultSubjects));
-            for (const tierData of Object.values(subjects)) {
-                for (const subject of tierData.subjects) {
-                    const userSubjectData = userData.subjects[subject.id];
-                    if (userSubjectData) {
-                        Object.assign(subject, userSubjectData);
-                    }
-                }
-            }
-        }
+
+        // Apply theme
         if (userData.theme) {
             document.documentElement.setAttribute('data-theme', userData.theme);
             updateThemeButton(userData.theme);
         }
-        if (userData.currentView) {
-            currentView = userData.currentView;
-        }
+
+        // Don't override currentView from GitHub - preserve navigation state
+        // The user's current page should be determined by localStorage only
 
         console.log('[App] Data loaded from GitHub successfully');
         return true;
@@ -158,29 +288,60 @@ async function saveDataToGitHub() {
     try {
         console.log('[App] Saving data to GitHub...');
 
-        // Build user data structure
+        // Build user data structure (schema 3.0)
         const userData = {
-            version: '2.0',
+            schema: '3.0',
             lastModified: new Date().toISOString(),
             progress: subjectProgress,
-            subjects: {},
-            theme: document.documentElement.getAttribute('data-theme') || 'light',
-            currentView: currentView
+            overlays: {},
+            customSubjects: {},
+            customTiers: {},
+            theme: document.documentElement.getAttribute('data-theme') || 'light'
+            // currentView is navigation state, not saved to GitHub (uses localStorage only)
         };
 
-        // Extract only user-customized data (goals, resources, projects)
-        for (const tierData of Object.values(subjects)) {
+        // Extract user data: overlays and custom subjects
+        for (const [tierName, tierData] of Object.values(subjects)) {
             for (const subject of tierData.subjects) {
-                const userCustomizations = {};
-                if (subject.goal) userCustomizations.goal = subject.goal;
-                if (subject.resources && subject.resources.length > 0) userCustomizations.resources = subject.resources;
-                if (subject.projects && subject.projects.length > 0) userCustomizations.projects = subject.projects;
+                if (subject.isCustom) {
+                    // This is a custom subject - save full definition
+                    userData.customSubjects[subject.id] = {
+                        name: subject.name,
+                        tier: tierName,
+                        prereq: subject.prereq || [],
+                        coreq: subject.coreq || [],
+                        soft: subject.soft || [],
+                        summary: subject.summary || '',
+                        goal: subject.goal || null,
+                        resources: subject.resources || [],
+                        projects: subject.projects || []
+                    };
 
-                if (Object.keys(userCustomizations).length > 0) {
-                    userData.subjects[subject.id] = userCustomizations;
+                    // Track custom tiers
+                    if (tierData.order >= 999 || tierData.category === 'custom') {
+                        userData.customTiers[tierName] = {
+                            category: tierData.category || 'custom',
+                            order: tierData.order || 999
+                        };
+                    }
+                } else {
+                    // This is a catalog subject - save only customizations (overlay)
+                    const overlay = {};
+                    if (subject.goal) overlay.goal = subject.goal;
+                    if (subject.resources && subject.resources.length > 0) overlay.resources = subject.resources;
+                    if (subject.projects && subject.projects.length > 0) overlay.projects = subject.projects;
+
+                    if (Object.keys(overlay).length > 0) {
+                        userData.overlays[subject.id] = overlay;
+                    }
                 }
             }
         }
+
+        // Clean up empty objects
+        if (Object.keys(userData.overlays).length === 0) delete userData.overlays;
+        if (Object.keys(userData.customSubjects).length === 0) delete userData.customSubjects;
+        if (Object.keys(userData.customTiers).length === 0) delete userData.customTiers;
 
         await githubStorage.saveUserData(userData);
 
@@ -298,6 +459,25 @@ function cycleProgress(id, event) {
     setSubjectProgress(id, next[current]);
 }
 
+function cycleProjectProgress(subjectId, projectIndex, event) {
+    if (event) event.stopPropagation();
+    if (viewMode === 'public') return;
+
+    const subject = findSubject(subjectId);
+    if (!subject?.projects?.[projectIndex]) return;
+
+    const project = subject.projects[projectIndex];
+    const statusCycle = {
+        'not-started': 'in-progress',
+        'in-progress': 'completed',
+        'completed': 'not-started'
+    };
+
+    project.status = statusCycle[project.status] || 'not-started';
+    saveSubjects();
+    render();
+}
+
 // Expand/Collapse state management
 // Removed: toggleSubjectExpanded, isSubjectExpanded, toggleProjectExpanded, isProjectExpanded
 // No longer using expandable/collapsible subject cards - content always visible
@@ -387,16 +567,14 @@ function renderProjectsInCard(projects, subjectId) {
             'completed': 'complete'
         }[project.status] || 'empty';
 
-        const progressIcon = {
-            'empty': '☐',
-            'partial': '☑',
-            'complete': '☒'
-        }[progress];
-
         return `
-            <div class="project-mini-card ${progress}" onclick="editProject(${index}, event)">
-                <span class="project-name">${project.name}</span>
-                <span class="project-progress-checkbox ${progress}">${progressIcon}</span>
+            <div class="project-mini-card ${progress}" onclick="editProject('${subjectId}', ${index}, event)">
+                <span class="project-name">
+                    ${project.name}
+                </span>
+                <div class="project-progress-checkbox ${progress}"
+                     onclick="cycleProjectProgress('${subjectId}', ${index}, event)">
+                </div>
             </div>
         `;
     }).join('')}</div>`;
@@ -413,8 +591,8 @@ function renderSubjectCard(subject) {
     // Public mode: Show everything read-only (no edit access)
     if (isPublicMode) {
         return `
-            <div class="${cardClasses}" data-id="${subject.id}">
-                <div class="subject-card-header" onclick="openSubjectDetail('${subject.id}', event)" style="cursor: pointer;">
+            <div class="${cardClasses}" data-id="${subject.id}" onclick="openSubjectDetail('${subject.id}', event)" style="cursor: pointer;">
+                <div class="subject-card-header">
                     <span class="subject-name">${subject.name}</span>
                     <div class="progress-checkbox ${progress}" style="pointer-events: none;"></div>
                 </div>
@@ -457,8 +635,8 @@ function renderSubjectCard(subject) {
 
     // Owner mode - show full details with edit access
     return `
-        <div class="${cardClasses}" data-id="${subject.id}">
-            <div class="subject-card-header" onclick="openSubjectDetail('${subject.id}', event)">
+        <div class="${cardClasses}" data-id="${subject.id}" onclick="openSubjectDetail('${subject.id}', event)" style="cursor: pointer;">
+            <div class="subject-card-header">
                 <span class="subject-name">${subject.name}</span>
                 <div class="progress-checkbox ${progress}" onclick="cycleProgress('${subject.id}', event)"></div>
             </div>
@@ -497,6 +675,109 @@ function renderSubjectCard(subject) {
             </div>
         </div>
     `;
+}
+
+function renderSubjectCardExpanded(subject) {
+    const progress = getSubjectProgress(subject.id);
+    const readiness = calculateReadiness(subject);
+
+    let cardClasses = `subject-card expanded ${progress}`;
+    if (readiness === 'locked') cardClasses += ' locked';
+
+    let html = `<div class="${cardClasses}" data-id="${subject.id}" onclick="openSubjectDetail('${subject.id}', event)">`;
+
+    // Header with title and checkbox
+    html += `<div class="card-header">`;
+    html += `<h3 class="subject-title">${subject.name}</h3>`;
+    html += `<div class="progress-checkbox ${progress}" onclick="cycleProgress('${subject.id}', event)"></div>`;
+    html += `</div>`;
+
+    // Summary (if exists - now comes from catalog)
+    const summary = subject.summary;
+    if (summary) {
+        const truncatedSummary = summary.length > 200 ? summary.substring(0, 200) + '...' : summary;
+        html += `<div class="card-section summary-section">
+                   <strong>Summary:</strong> <span class="summary-text">${truncatedSummary}</span>
+                 </div>`;
+    }
+
+    // Goal (if exists)
+    if (subject.goal) {
+        html += `<div class="card-section">
+                   <strong>Goal:</strong> ${subject.goal}
+                 </div>`;
+    }
+
+    // Resources (if any, show first 3 inline)
+    if (subject.resources && subject.resources.length > 0) {
+        html += `<div class="card-section">`;
+        html += `<strong>Resources:</strong>`;
+        html += `<div class="resources-list-inline">`;
+        subject.resources.slice(0, 3).forEach(resource => {
+            if (resource.type === 'link') {
+                html += `<a href="${resource.url}" target="_blank" rel="noopener"
+                            onclick="event.stopPropagation()" class="resource-link-inline">
+                           ${resource.value}
+                         </a>`;
+            } else {
+                html += `<span class="resource-text-inline">${resource.value}</span>`;
+            }
+        });
+        if (subject.resources.length > 3) {
+            html += `<span class="more-indicator">+${subject.resources.length - 3} more</span>`;
+        }
+        html += `</div></div>`;
+    }
+
+    // Projects (full mini-cards with goals and resources)
+    if (subject.projects && subject.projects.length > 0) {
+        html += `<div class="card-section">`;
+        html += `<strong>Projects:</strong>`;
+        html += `<div class="projects-list-expanded">`;
+        subject.projects.forEach((project, index) => {
+            const projectProgress = {
+                'not-started': 'empty',
+                'in-progress': 'partial',
+                'completed': 'complete'
+            }[project.status] || 'empty';
+
+            html += `<div class="project-card-expanded ${projectProgress}" onclick="editProject('${subject.id}', ${index}, event)">`;
+            html += `<div class="project-header">`;
+            html += `<span class="project-name">
+                       ${project.name}
+                     </span>`;
+            html += `<div class="project-progress-checkbox ${projectProgress}"
+                          onclick="cycleProjectProgress('${subject.id}', ${index}, event)">
+                     </div>`;
+            html += `</div>`;
+
+            if (project.goal) {
+                html += `<div class="project-goal">${project.goal}</div>`;
+            }
+
+            if (project.resources && project.resources.length > 0) {
+                html += `<div class="project-resources-mini">`;
+                project.resources.slice(0, 2).forEach(resource => {
+                    if (resource.type === 'link') {
+                        html += `<a href="${resource.url}" target="_blank" rel="noopener"
+                                    onclick="event.stopPropagation()" class="resource-link-mini">
+                                   ${resource.value}
+                                 </a>`;
+                    }
+                });
+                if (project.resources.length > 2) {
+                    html += `<span class="more-indicator">+${project.resources.length - 2}</span>`;
+                }
+                html += `</div>`;
+            }
+
+            html += `</div>`;
+        });
+        html += `</div></div>`;
+    }
+
+    html += `</div>`;
+    return html;
 }
 
 function renderTier(tierName, tierData, isCollapsed = false) {
@@ -551,10 +832,26 @@ function render() {
                 else if (progress === 'complete') completedSubjects.push(subject);
             });
         });
+        // Current section - expanded view with 2-column grid
         html += '<div class="dashboard-section"><h2 class="section-title">Current</h2>';
-        html += currentSubjects.length ? `<div class="subjects-grid">${currentSubjects.map(renderSubjectCard).join('')}</div>` : `<p class="empty-state">No subjects in progress. Visit the <a href="#" onclick="switchView('catalog'); return false;">Catalog</a> to get started!</p>`;
-        html += '</div><div class="dashboard-section"><h2 class="section-title">Completed</h2>';
-        html += completedSubjects.length ? `<div class="subjects-grid">${completedSubjects.map(renderSubjectCard).join('')}</div>` : `<p class="empty-state">No completed subjects yet. Keep learning!</p>`;
+        if (currentSubjects.length) {
+            html += '<div class="subjects-grid dashboard-current-grid">';
+            html += currentSubjects.map(renderSubjectCardExpanded).join('');
+            html += '</div>';
+        } else {
+            html += '<p class="empty-state">No subjects in progress. Visit the <a href="#" onclick="switchView(\'catalog\'); return false;">Catalog</a> to get started!</p>';
+        }
+        html += '</div>';
+
+        // Completed section - normal grid
+        html += '<div class="dashboard-section"><h2 class="section-title">Completed</h2>';
+        if (completedSubjects.length) {
+            html += '<div class="subjects-grid">';
+            html += completedSubjects.map(renderSubjectCard).join('');
+            html += '</div>';
+        } else {
+            html += '<p class="empty-state">No completed subjects yet. Keep learning!</p>';
+        }
         html += '</div>';
     } else {
         html += Object.entries(subjects).map(([name, data]) => renderTier(name, data, false)).join('');
@@ -597,7 +894,20 @@ function openSubjectDetail(subjectId, event) {
 
     const isPublicMode = viewMode === 'public';
 
+    // Set title
     document.getElementById('detailModalTitle').textContent = subject.name;
+
+    // Summary field - display from catalog (read-only) or allow editing for custom subjects
+    const summaryField = document.getElementById('subjectSummary');
+    summaryField.value = subject.summary || '';
+
+    // Summary is read-only for public mode OR for catalog subjects (non-custom)
+    // Only custom subjects can have editable summaries in owner mode
+    summaryField.readOnly = isPublicMode || !subject.isCustom;
+
+    // Dependencies - render prerequisites, co-requisites, and recommendations
+    const depsContent = document.getElementById('dependenciesContent');
+    depsContent.innerHTML = renderDependenciesInModal(subject);
 
     // Goal field
     const goalField = document.getElementById('subjectGoal');
@@ -640,11 +950,67 @@ function saveSubjectDetail() {
     if (!currentEditingSubject) return;
     const subject = findSubject(currentEditingSubject);
     if (!subject) return;
+
+    // Save summary (only for custom subjects)
+    if (subject.isCustom) {
+        const summary = document.getElementById('subjectSummary').value.trim();
+        subject.summary = summary || '';
+    }
+    // For catalog subjects, summary is read-only and comes from catalog.json
+
+    // Save goal
     const goal = document.getElementById('subjectGoal').value.trim();
-    subject.goal = goal || undefined;
+    if (goal) {
+        subject.goal = goal;
+    } else {
+        subject.goal = null;
+    }
+
     saveSubjects();
+
+    // If authenticated, sync to GitHub
+    if (window.githubAuth && githubAuth.isAuthenticated()) {
+        saveDataToGitHub();
+    }
+
     closeSubjectDetail();
     render();
+}
+
+// Render Dependencies in Modal
+function renderDependenciesInModal(subject) {
+    const sections = [];
+
+    if (subject.prereq && subject.prereq.length > 0) {
+        const prereqs = subject.prereq
+            .map(id => findSubject(id))
+            .filter(s => s)
+            .map(s => `<span class="dep-tag prereq">${s.name}</span>`)
+            .join('');
+        sections.push(`<div class="dep-section"><strong>Prerequisites:</strong> ${prereqs}</div>`);
+    }
+
+    if (subject.coreq && subject.coreq.length > 0) {
+        const coreqs = subject.coreq
+            .map(id => findSubject(id))
+            .filter(s => s)
+            .map(s => `<span class="dep-tag coreq">${s.name}</span>`)
+            .join('');
+        sections.push(`<div class="dep-section"><strong>Co-requisites:</strong> ${coreqs}</div>`);
+    }
+
+    if (subject.soft && subject.soft.length > 0) {
+        const softs = subject.soft
+            .map(id => findSubject(id))
+            .filter(s => s)
+            .map(s => `<span class="dep-tag soft">${s.name}</span>`)
+            .join('');
+        sections.push(`<div class="dep-section"><strong>Recommended:</strong> ${softs}</div>`);
+    }
+
+    return sections.length > 0
+        ? sections.join('')
+        : '<p class="empty-state">No prerequisites or recommendations</p>';
 }
 
 // Resource Management
@@ -812,28 +1178,44 @@ function addProject() {
     document.getElementById('projectDetailModal').classList.add('active');
 }
 
-function editProject(projectIndex, event) {
+function editProject(subjectId, projectIndex, event) {
     if (event) event.stopPropagation();
-    if (!currentEditingSubject) return;
-    currentEditingProject = `${currentEditingSubject}-${projectIndex}`;
-    const subject = findSubject(currentEditingSubject);
+
+    currentEditingSubject = subjectId;
+    currentEditingProject = `${subjectId}-${projectIndex}`;
+
+    const subject = findSubject(subjectId);
     if (!subject || !subject.projects || !subject.projects[projectIndex]) return;
+
     const project = subject.projects[projectIndex];
+    const isPublicMode = viewMode === 'public';
+
+    // Populate modal
     document.getElementById('projectModalTitle').textContent = 'Edit Project';
     document.getElementById('projectName').value = project.name;
     document.getElementById('projectGoal').value = project.goal;
-
-    // Make fields editable (owner mode)
-    document.getElementById('projectName').readOnly = false;
-    document.getElementById('projectGoal').readOnly = false;
+    document.getElementById('projectName').readOnly = isPublicMode;
+    document.getElementById('projectGoal').readOnly = isPublicMode;
 
     renderResourcesList(project.resources || [], 'projectResourcesList', 'project');
 
-    // Show all edit controls (owner mode)
-    document.getElementById('addProjectResourceBtn').style.display = 'block';
-    document.getElementById('saveProjectBtn').style.display = 'inline-block';
-    document.getElementById('cancelProjectBtn').style.display = 'inline-block';
-    document.getElementById('deleteProjectBtn').style.display = 'inline-block';
+    // Show/hide controls
+    const addResourceBtn = document.getElementById('addProjectResourceBtn');
+    const saveBtn = document.getElementById('saveProjectBtn');
+    const cancelBtn = document.getElementById('cancelProjectBtn');
+    const deleteBtn = document.getElementById('deleteProjectBtn');
+
+    if (isPublicMode) {
+        addResourceBtn.style.display = 'none';
+        saveBtn.style.display = 'none';
+        cancelBtn.style.display = 'none';
+        deleteBtn.style.display = 'none';
+    } else {
+        addResourceBtn.style.display = 'block';
+        saveBtn.style.display = 'inline-block';
+        cancelBtn.style.display = 'inline-block';
+        deleteBtn.style.display = 'inline-block';
+    }
 
     document.getElementById('projectDetailModal').classList.add('active');
 }
@@ -1064,8 +1446,421 @@ async function manualSync() {
     }
 }
 
+// Settings Modal Functions
+function openSettingsModal() {
+    document.getElementById('settingsModal').classList.add('active');
+}
+
+function closeSettingsModal() {
+    document.getElementById('settingsModal').classList.remove('active');
+}
+
+function exportData() {
+    // Build complete export data (schema 3.0)
+    const exportData = {
+        schema: '3.0',
+        exportDate: new Date().toISOString(),
+        lastModified: new Date().toISOString(),
+        progress: subjectProgress,
+        overlays: {},
+        customSubjects: {},
+        customTiers: {},
+        theme: document.documentElement.getAttribute('data-theme') || 'light'
+    };
+
+    // Extract all subject customizations and custom subjects
+    for (const [tierName, tierData] of Object.entries(subjects)) {
+        for (const subject of tierData.subjects) {
+            if (subject.isCustom) {
+                // This is a custom subject - export full definition
+                exportData.customSubjects[subject.id] = {
+                    name: subject.name,
+                    tier: tierName,
+                    prereq: subject.prereq || [],
+                    coreq: subject.coreq || [],
+                    soft: subject.soft || [],
+                    summary: subject.summary || '',
+                    goal: subject.goal || null,
+                    resources: subject.resources || [],
+                    projects: subject.projects || []
+                };
+
+                // Track custom tiers
+                if (tierData.order >= 999 || tierData.category === 'custom') {
+                    exportData.customTiers[tierName] = {
+                        category: tierData.category || 'custom',
+                        order: tierData.order || 999
+                    };
+                }
+            } else {
+                // This is a catalog subject - export only customizations (overlay)
+                const overlay = {};
+                if (subject.goal) overlay.goal = subject.goal;
+                if (subject.resources && subject.resources.length > 0) overlay.resources = subject.resources;
+                if (subject.projects && subject.projects.length > 0) overlay.projects = subject.projects;
+
+                if (Object.keys(overlay).length > 0) {
+                    exportData.overlays[subject.id] = overlay;
+                }
+            }
+        }
+    }
+
+    // Clean up empty objects
+    if (Object.keys(exportData.overlays).length === 0) delete exportData.overlays;
+    if (Object.keys(exportData.customSubjects).length === 0) delete exportData.customSubjects;
+    if (Object.keys(exportData.customTiers).length === 0) delete exportData.customTiers;
+
+    // Create and download JSON file
+    const dataStr = JSON.stringify(exportData, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `polymathica-data-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    alert('Data exported successfully!');
+}
+
+function importData() {
+    const fileInput = document.getElementById('importFileInput');
+    fileInput.click();
+}
+
+async function handleImportFile(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async function(e) {
+        try {
+            const importedData = JSON.parse(e.target.result);
+
+            // Validate data structure
+            if (!importedData.schema && !importedData.version) {
+                alert('Invalid data file format: missing schema/version');
+                return;
+            }
+
+            if (!importedData.progress) {
+                alert('Invalid data file format: missing progress data');
+                return;
+            }
+
+            // Validate schema version
+            const schema = importedData.schema || importedData.version;
+            if (schema !== '3.0') {
+                if (!confirm(`Warning: Data file has schema version ${schema}, but current version is 3.0. Import may not work correctly. Continue anyway?`)) {
+                    return;
+                }
+            }
+
+            if (!confirm('This will replace all your current data. Are you sure?')) {
+                return;
+            }
+
+            // Load catalog
+            const catalog = await loadCatalog();
+
+            // Import progress
+            subjectProgress = importedData.progress || {};
+            saveProgress();
+
+            // Rebuild subjects from catalog + imported user data
+            subjects = mergeCatalogWithUserData(catalog, importedData);
+            saveSubjects();
+
+            // Import theme
+            if (importedData.theme) {
+                document.documentElement.setAttribute('data-theme', importedData.theme);
+                updateThemeButton(importedData.theme);
+                saveTheme(importedData.theme);
+            }
+
+            // Re-render
+            render();
+            closeSettingsModal();
+            alert('Data imported successfully!');
+
+            // If authenticated, sync to GitHub
+            if (window.githubAuth && githubAuth.isAuthenticated()) {
+                saveDataToGitHub();
+            }
+        } catch (error) {
+            alert('Failed to import data: ' + error.message);
+        }
+    };
+    reader.readAsText(file);
+
+    // Reset input so same file can be selected again
+    event.target.value = '';
+}
+
+async function resetAllData() {
+    const confirmInput = document.getElementById('resetConfirmInput').value;
+
+    if (confirmInput !== 'Polymathica') {
+        alert('Please type "Polymathica" to confirm the reset.');
+        return;
+    }
+
+    if (!confirm('Are you absolutely sure? This will permanently delete ALL your data including progress, goals, resources, and projects. This action CANNOT be undone.')) {
+        return;
+    }
+
+    // Reset all data to defaults (load fresh catalog with no user data)
+    const catalog = await loadCatalog();
+    subjects = mergeCatalogWithUserData(catalog, null);
+    subjectProgress = {};
+
+    // Save to localStorage
+    saveSubjects();
+    saveProgress();
+
+    // Clear the confirmation input
+    document.getElementById('resetConfirmInput').value = '';
+
+    // If authenticated, sync the reset to GitHub
+    if (window.githubAuth && githubAuth.isAuthenticated()) {
+        await saveDataToGitHub();
+    }
+
+    // Re-render
+    render();
+    closeSettingsModal();
+
+    alert('All data has been reset successfully.');
+}
+
+// Subject Creation Functions
+function getAllSubjectIds() {
+    const subjectIds = [];
+    for (const tierData of Object.values(subjects)) {
+        if (tierData.subjects) {
+            for (const subject of tierData.subjects) {
+                subjectIds.push({
+                    id: subject.id,
+                    name: subject.name
+                });
+            }
+        }
+    }
+    return subjectIds;
+}
+
+function setupAutocomplete(inputId, suggestionsId) {
+    const input = document.getElementById(inputId);
+    const suggestionsContainer = document.getElementById(suggestionsId);
+    let selectedIndex = -1;
+
+    input.addEventListener('input', function() {
+        const value = this.value;
+        const lastComma = value.lastIndexOf(',');
+        const currentTerm = lastComma >= 0 ? value.substring(lastComma + 1).trim() : value.trim();
+
+        if (currentTerm.length < 1) {
+            suggestionsContainer.classList.remove('active');
+            return;
+        }
+
+        const allSubjects = getAllSubjectIds();
+        const matches = allSubjects.filter(s =>
+            s.id.toLowerCase().includes(currentTerm.toLowerCase()) ||
+            s.name.toLowerCase().includes(currentTerm.toLowerCase())
+        ).slice(0, 10);
+
+        if (matches.length === 0) {
+            suggestionsContainer.classList.remove('active');
+            return;
+        }
+
+        suggestionsContainer.innerHTML = matches.map((subject, index) =>
+            `<div class="autocomplete-suggestion" data-index="${index}" data-id="${subject.id}">
+                <span class="suggestion-id">${subject.id}</span>
+                <span class="suggestion-name">${subject.name}</span>
+            </div>`
+        ).join('');
+
+        suggestionsContainer.classList.add('active');
+        selectedIndex = -1;
+
+        // Add click handlers
+        suggestionsContainer.querySelectorAll('.autocomplete-suggestion').forEach(el => {
+            el.addEventListener('click', function() {
+                const selectedId = this.getAttribute('data-id');
+                const lastComma = input.value.lastIndexOf(',');
+                if (lastComma >= 0) {
+                    input.value = input.value.substring(0, lastComma + 1) + ' ' + selectedId + ', ';
+                } else {
+                    input.value = selectedId + ', ';
+                }
+                suggestionsContainer.classList.remove('active');
+                input.focus();
+            });
+        });
+    });
+
+    input.addEventListener('keydown', function(e) {
+        const suggestions = suggestionsContainer.querySelectorAll('.autocomplete-suggestion');
+        if (!suggestionsContainer.classList.contains('active') || suggestions.length === 0) return;
+
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            selectedIndex = Math.min(selectedIndex + 1, suggestions.length - 1);
+            updateSelected();
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            selectedIndex = Math.max(selectedIndex - 1, 0);
+            updateSelected();
+        } else if (e.key === 'Enter' && selectedIndex >= 0) {
+            e.preventDefault();
+            suggestions[selectedIndex].click();
+        } else if (e.key === 'Escape') {
+            suggestionsContainer.classList.remove('active');
+        }
+
+        function updateSelected() {
+            suggestions.forEach((el, i) => {
+                el.classList.toggle('selected', i === selectedIndex);
+            });
+        }
+    });
+
+    // Close suggestions when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!input.contains(e.target) && !suggestionsContainer.contains(e.target)) {
+            suggestionsContainer.classList.remove('active');
+        }
+    });
+}
+
+function openCreateSubjectModal() {
+    document.getElementById('createSubjectModal').classList.add('active');
+
+    // Populate category dropdown with existing tiers
+    const categorySelect = document.getElementById('newSubjectCategory');
+    categorySelect.innerHTML = '<option value="">Select a category...</option>';
+
+    // Add existing tiers (excluding "Custom Subjects")
+    for (const tierName of Object.keys(subjects)) {
+        if (tierName !== 'Custom Subjects') {
+            const option = document.createElement('option');
+            option.value = tierName;
+            option.textContent = tierName;
+            categorySelect.appendChild(option);
+        }
+    }
+
+    // Setup autocomplete for dependency fields
+    setupAutocomplete('newSubjectPrereq', 'prereqSuggestions');
+    setupAutocomplete('newSubjectCoreq', 'coreqSuggestions');
+    setupAutocomplete('newSubjectSoft', 'softSuggestions');
+
+    // Reset form
+    document.getElementById('newSubjectName').value = '';
+    document.getElementById('newSubjectCategory').value = '';
+    document.getElementById('newSubjectPrereq').value = '';
+    document.getElementById('newSubjectCoreq').value = '';
+    document.getElementById('newSubjectSoft').value = '';
+    document.getElementById('newSubjectSummary').value = '';
+    document.getElementById('newSubjectGoal').value = '';
+    document.getElementById('newSubjectName').focus();
+}
+
+function closeCreateSubjectModal() {
+    document.getElementById('createSubjectModal').classList.remove('active');
+}
+
+function saveNewSubject() {
+    const name = document.getElementById('newSubjectName').value.trim();
+    const category = document.getElementById('newSubjectCategory').value;
+    const prereqStr = document.getElementById('newSubjectPrereq').value.trim();
+    const coreqStr = document.getElementById('newSubjectCoreq').value.trim();
+    const softStr = document.getElementById('newSubjectSoft').value.trim();
+    const summary = document.getElementById('newSubjectSummary').value.trim();
+    const goal = document.getElementById('newSubjectGoal').value.trim();
+
+    // Validation
+    if (!name) {
+        alert('Please enter a subject name');
+        return;
+    }
+
+    if (!category) {
+        alert('Please select a category');
+        return;
+    }
+
+    // Generate a unique ID from the name
+    const id = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+
+    // Check if subject with this ID already exists
+    for (const tierData of Object.values(subjects)) {
+        if (tierData.subjects && tierData.subjects.some(s => s.id === id)) {
+            alert('A subject with this name already exists. Please choose a different name.');
+            return;
+        }
+    }
+
+    // Parse prerequisites, co-requisites, and soft dependencies
+    const prereq = prereqStr ? prereqStr.split(',').map(s => s.trim()).filter(s => s) : [];
+    const coreq = coreqStr ? coreqStr.split(',').map(s => s.trim()).filter(s => s) : [];
+    const soft = softStr ? softStr.split(',').map(s => s.trim()).filter(s => s) : [];
+
+    // Create the new subject
+    const newSubject = {
+        id: id,
+        name: name,
+        prereq: prereq,
+        coreq: coreq,
+        soft: soft,
+        summary: summary || '',
+        goal: goal || null,
+        resources: [],
+        projects: [],
+        isCustom: true  // Mark as custom subject
+    };
+
+    // Get the category's existing data or use default
+    const categoryData = subjects[category] || { category: 'custom', subjects: [] };
+
+    // Ensure the category exists
+    if (!subjects[category]) {
+        subjects[category] = {
+            category: categoryData.category,
+            subjects: []
+        };
+    }
+
+    // Add the subject to the category
+    subjects[category].subjects.push(newSubject);
+
+    // Initialize progress as empty
+    subjectProgress[id] = 'empty';
+
+    // Save
+    saveSubjects();
+    saveProgress();
+
+    // If authenticated, sync to GitHub
+    if (window.githubAuth && githubAuth.isAuthenticated()) {
+        saveDataToGitHub();
+    }
+
+    // Re-render
+    render();
+    closeCreateSubjectModal();
+
+    alert(`Subject "${name}" created successfully!`);
+}
+
 // Make functions globally accessible for inline onclick handlers
 window.cycleProgress = cycleProgress;
+window.cycleProjectProgress = cycleProjectProgress;
 window.openSubjectDetail = openSubjectDetail;
 window.editProject = editProject;
 window.viewProject = viewProject;
@@ -1076,10 +1871,18 @@ window.toggleTier = toggleTier;
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
+    // Hide content during initialization to prevent flash
+    const content = document.getElementById('content');
+    if (content) content.style.display = 'none';
+
     loadAllData();
     initializeTheme();
     currentView = loadView();
+
+    // Show content before switching view
+    if (content) content.style.display = 'block';
     switchView(currentView);
+
     document.querySelectorAll('.nav-link').forEach(link => {
         link.addEventListener('click', () => switchView(link.dataset.view));
     });
@@ -1115,6 +1918,25 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('githubToken').addEventListener('keypress', (e) => {
         if (e.key === 'Enter') saveToken();
     });
+
+    // Settings modal event listeners
+    document.getElementById('settingsButton').addEventListener('click', openSettingsModal);
+    document.getElementById('closeSettingsBtn').addEventListener('click', closeSettingsModal);
+    document.getElementById('closeSettingsFooterBtn').addEventListener('click', closeSettingsModal);
+    document.getElementById('exportDataBtn').addEventListener('click', exportData);
+    document.getElementById('importDataBtn').addEventListener('click', importData);
+    document.getElementById('importFileInput').addEventListener('change', handleImportFile);
+    document.getElementById('resetAllBtn').addEventListener('click', resetAllData);
+    document.getElementById('settingsModal').addEventListener('click', (e) => { if (e.target.id === 'settingsModal') closeSettingsModal(); });
+
+    // Catalog create subject button
+    document.getElementById('catalogCreateSubjectBtn').addEventListener('click', openCreateSubjectModal);
+
+    // Create subject modal event listeners
+    document.getElementById('closeCreateSubjectBtn').addEventListener('click', closeCreateSubjectModal);
+    document.getElementById('cancelCreateSubjectBtn').addEventListener('click', closeCreateSubjectModal);
+    document.getElementById('saveNewSubjectBtn').addEventListener('click', saveNewSubject);
+    document.getElementById('createSubjectModal').addEventListener('click', (e) => { if (e.target.id === 'createSubjectModal') closeCreateSubjectModal(); });
 
     // Sync status - click to manually sync
     document.getElementById('syncStatus').addEventListener('click', manualSync);

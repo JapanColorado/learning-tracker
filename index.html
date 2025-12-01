@@ -12,7 +12,6 @@
             <div class="nav-brand">
                 <h1>Polymathica</h1>
             </div>
-            <div class="nav-separator">|</div>
             <div class="nav-links">
                 <button class="nav-link active" data-view="dashboard">
                     Dashboard
@@ -21,9 +20,8 @@
                     Catalog
                 </button>
             </div>
-            <div class="nav-separator">|</div>
             <button class="theme-toggle nav-theme-toggle" id="themeToggle">☀️</button>
-            <div class="nav-separator">|</div>
+            <button class="settings-button" id="settingsButton" title="Settings">⚙️</button>
             <div class="auth-controls">
                 <button class="auth-button" id="authButton">Sign In</button>
                 <div class="sync-status hidden" id="syncStatus">
@@ -66,6 +64,7 @@
                         <option value="social">Social Sciences</option>
                         <option value="health">Health Sciences</option>
                     </select>
+                    <button class="create-subject-button" id="catalogCreateSubjectBtn">➕ New Subject</button>
                 </div>
             </div>
         </div>
@@ -81,21 +80,40 @@
                 </div>
 
                 <div class="detail-sections">
+                    <!-- Summary section -->
                     <div class="detail-section">
-                        <label>Goal (Optional)</label>
+                        <label>Summary</label>
+                        <textarea id="subjectSummary" rows="3" placeholder="Brief description of this subject..."></textarea>
+                    </div>
+
+                    <!-- Dependencies section -->
+                    <div class="detail-section">
+                        <label>Prerequisites & Recommendations</label>
+                        <div id="dependenciesContent" class="dependencies-display"></div>
+                    </div>
+
+                    <!-- Goal section (inline) -->
+                    <div class="detail-section goal-section-inline">
+                        <label>Goal</label>
                         <textarea id="subjectGoal" placeholder="What do you want to achieve with this subject?"></textarea>
                     </div>
 
+                    <!-- Resources section -->
                     <div class="detail-section">
-                        <label>Resources</label>
+                        <div class="section-header-inline">
+                            <label>Resources</label>
+                            <button class="add-btn-inline small" id="addSubjectResourceBtn">+ Add</button>
+                        </div>
                         <div id="resourcesList"></div>
-                        <button class="add-resource-btn" id="addSubjectResourceBtn">+ Add Resource</button>
                     </div>
 
+                    <!-- Projects section -->
                     <div class="detail-section">
-                        <label>Projects</label>
+                        <div class="section-header-inline">
+                            <label>Projects</label>
+                            <button class="add-btn-inline small" id="addProjectBtn">+ Add</button>
+                        </div>
                         <div id="projectsList"></div>
-                        <button class="add-project-btn" id="addProjectBtn">+ Add Project</button>
                     </div>
                 </div>
 
@@ -147,15 +165,17 @@
                         <input type="text" id="projectName" placeholder="Project name">
                     </div>
 
-                    <div class="detail-section">
-                        <label>Goal (Required)</label>
+                    <div class="detail-section goal-section-inline">
+                        <label>Goal</label>
                         <textarea id="projectGoal" placeholder="What is this project about?" required></textarea>
                     </div>
 
                     <div class="detail-section">
-                        <label>Resources</label>
+                        <div class="section-header-inline">
+                            <label>Resources</label>
+                            <button class="add-btn-inline small" id="addProjectResourceBtn">+ Add</button>
+                        </div>
                         <div id="projectResourcesList"></div>
-                        <button class="add-project-resource-btn" id="addProjectResourceBtn">+ Add Resource</button>
                     </div>
 
                 </div>
@@ -196,14 +216,115 @@
                 </div>
             </div>
         </div>
+
+        <!-- Settings Modal -->
+        <div id="settingsModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-title">Settings</div>
+                    <button class="close-button" id="closeSettingsBtn">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <!-- Data Export/Import Section -->
+                    <div class="detail-section">
+                        <h3>Data Management</h3>
+                        <p class="help-text">Export your data for backup or import data from a previous export.</p>
+
+                        <div class="button-group">
+                            <button class="action-button" id="exportDataBtn">📥 Export Data to JSON</button>
+                            <button class="action-button" id="importDataBtn">📤 Import Data from JSON</button>
+                        </div>
+
+                        <input type="file" id="importFileInput" accept=".json" style="display: none;">
+                    </div>
+
+                    <!-- Danger Zone Section -->
+                    <div class="detail-section danger-zone">
+                        <h3 class="danger-title">⚠️ Danger Zone</h3>
+                        <p class="help-text">This action cannot be undone. All your progress, goals, resources, and projects will be permanently deleted.</p>
+
+                        <div class="reset-confirmation">
+                            <label>Type "Polymathica" to confirm:</label>
+                            <input type="text" id="resetConfirmInput" placeholder="Polymathica">
+                        </div>
+
+                        <button class="danger-button" id="resetAllBtn">🗑️ Reset All Data</button>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="cancel-button" id="closeSettingsFooterBtn">Close</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Create Subject Modal -->
+        <div id="createSubjectModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-title">Create New Subject</div>
+                    <button class="close-button" id="closeCreateSubjectBtn">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="detail-section">
+                        <label>Subject Name *</label>
+                        <input type="text" id="newSubjectName" placeholder="e.g., Advanced Topology">
+                    </div>
+
+                    <div class="detail-section">
+                        <label>Category *</label>
+                        <select id="newSubjectCategory">
+                            <option value="">Select a category...</option>
+                        </select>
+                        <p class="help-text">Select an existing category or create a custom one.</p>
+                    </div>
+
+                    <div class="detail-section">
+                        <label>Prerequisites (Optional)</label>
+                        <div class="autocomplete-wrapper">
+                            <input type="text" id="newSubjectPrereq" placeholder="e.g., calculus-1, linear-algebra" autocomplete="off">
+                            <div class="autocomplete-suggestions" id="prereqSuggestions"></div>
+                        </div>
+                        <p class="help-text">Enter subject IDs separated by commas. Must complete before starting this subject.</p>
+                    </div>
+
+                    <div class="detail-section">
+                        <label>Co-requisites (Optional)</label>
+                        <div class="autocomplete-wrapper">
+                            <input type="text" id="newSubjectCoreq" placeholder="e.g., physics-lab" autocomplete="off">
+                            <div class="autocomplete-suggestions" id="coreqSuggestions"></div>
+                        </div>
+                        <p class="help-text">Enter subject IDs separated by commas. Should study simultaneously.</p>
+                    </div>
+
+                    <div class="detail-section">
+                        <label>Recommended (Optional)</label>
+                        <div class="autocomplete-wrapper">
+                            <input type="text" id="newSubjectSoft" placeholder="e.g., set-theory" autocomplete="off">
+                            <div class="autocomplete-suggestions" id="softSuggestions"></div>
+                        </div>
+                        <p class="help-text">Enter subject IDs separated by commas. Helpful but not required.</p>
+                    </div>
+
+                    <div class="detail-section">
+                        <label>Summary (Optional)</label>
+                        <textarea id="newSubjectSummary" rows="3" placeholder="Brief description of this subject..."></textarea>
+                    </div>
+
+                    <div class="detail-section">
+                        <label>Initial Goal (Optional)</label>
+                        <textarea id="newSubjectGoal" rows="2" placeholder="What do you want to achieve?"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="save-button" id="saveNewSubjectBtn">Create Subject</button>
+                    <button class="cancel-button" id="cancelCreateSubjectBtn">Cancel</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- External JavaScript Dependencies -->
     <script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js"></script>
-
-    <!-- Data Files -->
-    <script src="data/subjects.js"></script>
-    <script src="data/summaries.js"></script>
 
     <!-- GitHub Integration -->
     <script src="config.js"></script>

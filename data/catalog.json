@@ -1,0 +1,1171 @@
+{
+  "schema": "3.0",
+  "catalogVersion": "2025-12-01",
+  "lastUpdated": "2025-12-01T03:31:17.873Z",
+  "metadata": {
+    "totalSubjects": 118,
+    "totalTiers": 14
+  },
+  "tiers": {
+    "Mathematics": {
+      "category": "mathematics",
+      "order": 1,
+      "subjects": {
+        "calc1": {
+          "name": "Calculus 1 (Limits, Derivatives, Basic Integration)",
+          "prereq": [],
+          "coreq": [],
+          "soft": [],
+          "summary": "Foundation of calculus covering limits, continuity, derivatives, and basic integration including rates of change, optimization, curve sketching, and fundamental concepts. Key topics include limits, derivatives (power rule, product rule, chain rule), applications of derivatives, Riemann sums, and fundamental theorem of calculus."
+        },
+        "calc2": {
+          "name": "Calculus 2 (Integration Techniques, Series, Sequences)",
+          "prereq": [
+            "calc1"
+          ],
+          "coreq": [],
+          "soft": [],
+          "summary": "Advanced integration techniques, infinite series, and sequences. Key topics include integration by parts, partial fractions, trigonometric substitution, convergence tests, improper integrals, Taylor series, and polar coordinates."
+        },
+        "calc3": {
+          "name": "Calculus 3 (Multivariable Calculus)",
+          "prereq": [
+            "calc2"
+          ],
+          "coreq": [],
+          "soft": [],
+          "summary": "Extends calculus to functions of multiple variables covering partial derivatives, multiple integrals, vector calculus, and applications to 3D space. Key topics include partial derivatives, gradient, multiple integrals, line and surface integrals, Green's theorem, Stokes' theorem, and divergence theorem."
+        },
+        "linalg": {
+          "name": "Linear Algebra",
+          "prereq": [],
+          "coreq": [
+            "calc2"
+          ],
+          "soft": [],
+          "summary": "Study of vector spaces, linear transformations, and matrices essential for quantum mechanics, machine learning, computer graphics, and high-dimensional spaces. Key topics include matrices, determinants, vector spaces, eigenvalues and eigenvectors, linear transformations, orthogonality, and least squares."
+        },
+        "prob": {
+          "name": "Probability & Statistics (Bayesian Approach)",
+          "prereq": [
+            "calc2"
+          ],
+          "coreq": [],
+          "soft": [],
+          "summary": "Rigorous treatment of probability and statistical inference from a Bayesian perspective for updating beliefs with evidence and making decisions under uncertainty. Key topics include probability distributions, Bayes' theorem, conditional probability, expectation, variance, hypothesis testing, and Bayesian inference."
+        },
+        "discrete": {
+          "name": "Discrete Mathematics and Combinatorics",
+          "prereq": [],
+          "coreq": [],
+          "soft": [],
+          "summary": "Mathematics of discrete structures including counting, graphs, logic, and algorithms as foundation for computer science and optimization. Key topics include combinatorics, graph theory, recurrence relations, generating functions, discrete probability, and pigeonhole principle."
+        },
+        "logic": {
+          "name": "Logic and Set Theory",
+          "prereq": [],
+          "coreq": [],
+          "soft": [],
+          "summary": "Formal logic, proofs, and set theory as foundation of mathematics and computer science emphasizing rigorous reasoning. Key topics include propositional logic, predicate logic, proof techniques, sets, relations, functions, cardinality, and axiom of choice."
+        },
+        "odes": {
+          "name": "Ordinary Differential Equations (ODEs)",
+          "prereq": [
+            "calc3"
+          ],
+          "coreq": [],
+          "soft": [],
+          "summary": "Equations involving derivatives of functions of one variable that model change and dynamics in physics, biology, economics, and engineering. Key topics include first-order ODEs, second-order linear ODEs, systems of ODEs, phase portraits, stability analysis, and Laplace transforms."
+        },
+        "realanalysis": {
+          "name": "Real Analysis",
+          "prereq": [
+            "calc3"
+          ],
+          "coreq": [
+            "odes"
+          ],
+          "soft": [],
+          "summary": "Rigorous foundations of calculus understanding limits, continuity, differentiation, and integration with mathematical precision. Key topics include sequences, series, limits, continuity, differentiation, Riemann integration, uniform convergence, and metric spaces."
+        },
+        "complexanalysis": {
+          "name": "Complex Analysis",
+          "prereq": [
+            "realanalysis"
+          ],
+          "coreq": [],
+          "soft": [],
+          "summary": "Calculus of complex-valued functions with applications to physics, engineering, and number theory. Key topics include complex differentiation, Cauchy-Riemann equations, contour integration, residue theorem, conformal mappings, and analytic functions."
+        },
+        "fourier": {
+          "name": "Fourier Analysis",
+          "prereq": [
+            "odes"
+          ],
+          "coreq": [
+            "complexanalysis"
+          ],
+          "soft": [],
+          "summary": "Decomposing functions into frequency components essential for signal processing, PDEs, and quantum mechanics. Key topics include Fourier series, Fourier transform, convolution, frequency domain, and applications to PDEs and signal processing."
+        },
+        "pdes": {
+          "name": "Partial Differential Equations (PDEs)",
+          "prereq": [
+            "odes",
+            "fourier"
+          ],
+          "coreq": [],
+          "soft": [],
+          "summary": "Equations with partial derivatives that model heat, waves, diffusion, and quantum mechanics. Key topics include heat equation, wave equation, Laplace equation, separation of variables, boundary value problems, and Green's functions."
+        },
+        "dynamical": {
+          "name": "Dynamical Systems",
+          "prereq": [
+            "odes"
+          ],
+          "coreq": [
+            "pdes"
+          ],
+          "soft": [],
+          "summary": "Study of how systems evolve over time including chaos, stability, attractors, and bifurcations. Key topics include fixed points, stability analysis, bifurcations, chaos, Lyapunov exponents, limit cycles, and strange attractors."
+        },
+        "algebra": {
+          "name": "Abstract Algebra (Group Theory)",
+          "prereq": [
+            "realanalysis"
+          ],
+          "coreq": [],
+          "soft": [],
+          "summary": "Study of symmetry and algebraic structures including groups, rings, and fields with their applications. Key topics include groups, subgroups, homomorphisms, cosets, normal subgroups, quotient groups, group actions, rings, and fields."
+        },
+        "topology": {
+          "name": "Topology",
+          "prereq": [
+            "realanalysis"
+          ],
+          "coreq": [
+            "algebra"
+          ],
+          "soft": [],
+          "summary": "Study of properties preserved under continuous deformation exploring shape without distance. Key topics include topological spaces, open and closed sets, continuity, compactness, connectedness, metric spaces, and homeomorphisms."
+        },
+        "numerical": {
+          "name": "Numerical Methods",
+          "prereq": [
+            "odes",
+            "linalg"
+          ],
+          "coreq": [],
+          "soft": [],
+          "summary": "Algorithms for solving mathematical problems on computers including approximation, error analysis, and implementation. Key topics include root finding, interpolation, numerical integration, solving ODEs numerically, linear systems, and optimization algorithms."
+        },
+        "optimization": {
+          "name": "Optimization",
+          "prereq": [
+            "calc3",
+            "linalg"
+          ],
+          "coreq": [],
+          "soft": [],
+          "summary": "Finding best solutions under constraints through linear programming, convex optimization, and applications. Key topics include linear programming, convex optimization, gradient descent, Lagrange multipliers, KKT conditions, and duality."
+        },
+        "graph": {
+          "name": "Graph Theory",
+          "prereq": [
+            "discrete"
+          ],
+          "coreq": [],
+          "soft": [],
+          "summary": "Study of networks, connections, and relationships with algorithms and applications to social networks, routing, and scheduling. Key topics include graph representations, trees, connectivity, shortest paths, network flow, matching, coloring, and planar graphs."
+        },
+        "infotheo": {
+          "name": "Information Theory",
+          "prereq": [
+            "prob"
+          ],
+          "coreq": [],
+          "soft": [],
+          "summary": "Quantifying information, compression, and communication using entropy as fundamental measure of uncertainty. Key topics include entropy, mutual information, channel capacity, source coding, channel coding, data compression, and error correction."
+        },
+        "category": {
+          "name": "Category Theory (Very Basic)",
+          "prereq": [
+            "algebra"
+          ],
+          "coreq": [],
+          "soft": [
+            "topology"
+          ],
+          "summary": "Mathematics of mathematics exploring abstract patterns across different mathematical structures. Key topics include categories, functors, natural transformations, universal properties, limits and colimits, and adjunctions."
+        }
+      }
+    },
+    "Physics": {
+      "category": "physics",
+      "order": 2,
+      "subjects": {
+        "classical": {
+          "name": "Classical Mechanics (including Lagrangian/Hamiltonian)",
+          "prereq": [
+            "calc3"
+          ],
+          "coreq": [
+            "odes"
+          ],
+          "soft": [],
+          "summary": "Newton's laws, energy, momentum, and elegant reformulations including Lagrangian and Hamiltonian mechanics as foundation of physics. Key topics include Newton's laws, energy and momentum conservation, rotational motion, Lagrangian mechanics, Hamiltonian mechanics, and central forces."
+        },
+        "thermo": {
+          "name": "Thermodynamics",
+          "prereq": [
+            "calc2"
+          ],
+          "coreq": [],
+          "soft": [],
+          "summary": "Energy, entropy, and the laws governing heat and work explaining why processes happen and fundamental limits of efficiency. Key topics include laws of thermodynamics, entropy, heat engines, Carnot cycle, thermodynamic potentials, and phase transitions."
+        },
+        "em": {
+          "name": "Electromagnetism",
+          "prereq": [
+            "calc3"
+          ],
+          "coreq": [],
+          "soft": [
+            "classical"
+          ],
+          "summary": "Electric and magnetic fields, Maxwell's equations, and electromagnetic waves explaining how light and electricity work. Key topics include electric fields and potential, Gauss's law, magnetic fields, Ampère's law, Faraday's law, Maxwell's equations, and EM waves."
+        },
+        "quantum": {
+          "name": "Quantum Mechanics",
+          "prereq": [
+            "linalg",
+            "complexanalysis",
+            "odes",
+            "classical"
+          ],
+          "coreq": [],
+          "soft": [],
+          "summary": "Physics at atomic scale exploring wave-particle duality, uncertainty, and the fundamental nature of reality. Key topics include wave functions, Schrödinger equation, operators, uncertainty principle, quantum tunneling, harmonic oscillator, hydrogen atom, and spin."
+        },
+        "statmech": {
+          "name": "Statistical Mechanics",
+          "prereq": [
+            "thermo",
+            "prob"
+          ],
+          "coreq": [
+            "quantum"
+          ],
+          "soft": [],
+          "summary": "Bridge between microscopic and macroscopic physics showing how thermodynamics emerges from quantum mechanics and statistics. Key topics include microstates and macrostates, Boltzmann distribution, partition functions, entropy, ensembles, and phase transitions."
+        },
+        "relativity": {
+          "name": "Relativity (Special & General)",
+          "prereq": [
+            "em",
+            "classical"
+          ],
+          "coreq": [],
+          "soft": [],
+          "summary": "Spacetime, gravity as curved geometry, and physics at extreme speeds through Einstein's revolutionary theories. Key topics include special relativity (time dilation, length contraction), four-vectors, general relativity basics, curved spacetime, and black holes."
+        },
+        "particle": {
+          "name": "Particle Physics",
+          "prereq": [
+            "quantum"
+          ],
+          "coreq": [],
+          "soft": [],
+          "summary": "Fundamental particles and forces through the Standard Model explaining what everything is made of. Key topics include quarks, leptons, gauge bosons, Standard Model, Feynman diagrams, particle interactions, and conservation laws."
+        },
+        "condensed": {
+          "name": "Condensed Matter Physics",
+          "prereq": [
+            "quantum",
+            "statmech"
+          ],
+          "coreq": [],
+          "soft": [],
+          "summary": "Physics of solids and liquids exploring emergence, phase transitions, and collective behavior. Key topics include crystal structure, band theory, superconductivity, magnetism, phase transitions, semiconductors, and quantum Hall effect."
+        },
+        "astro": {
+          "name": "Astrophysics",
+          "prereq": [],
+          "coreq": [],
+          "soft": [
+            "em",
+            "thermo",
+            "quantum"
+          ],
+          "summary": "Physics of stars, galaxies, and the universe showing how cosmic structures form and evolve. Key topics include stellar structure, stellar evolution, galaxies, cosmology basics, nucleosynthesis, supernovae, neutron stars, and black holes."
+        },
+        "astronomy": {
+          "name": "Observational Astronomy",
+          "prereq": [],
+          "coreq": [
+            "astro"
+          ],
+          "soft": [],
+          "summary": "Techniques for observing the universe using telescopes, detectors, and data analysis. Key topics include telescopes, photometry, spectroscopy, astrometry, observational techniques, data reduction, and astronomical instruments."
+        },
+        "biophys": {
+          "name": "Biophysics",
+          "prereq": [
+            "classical",
+            "cellbio"
+          ],
+          "coreq": [],
+          "soft": [],
+          "summary": "Physical principles in biological systems from molecular machines to organism-level physics. Key topics include biomolecular structure, molecular motors, membrane biophysics, nerve impulses, biomechanics, and single-molecule techniques."
+        }
+      }
+    },
+    "Chemistry & Biochemistry": {
+      "category": "chemistry",
+      "order": 3,
+      "subjects": {
+        "genchem": {
+          "name": "General Chemistry",
+          "prereq": [],
+          "coreq": [],
+          "soft": [
+            "calc1"
+          ],
+          "summary": "Atomic structure, bonding, reactions, and stoichiometry as foundation for understanding matter and chemical processes. Key topics include atomic structure, periodic table, chemical bonding, stoichiometry, thermochemistry, equilibrium, acids and bases, and redox reactions."
+        },
+        "physchem": {
+          "name": "Physical Chemistry",
+          "prereq": [
+            "genchem",
+            "calc2"
+          ],
+          "coreq": [],
+          "soft": [
+            "quantum"
+          ],
+          "summary": "Chemistry through the lens of physics including quantum chemistry, thermodynamics, and kinetics. Key topics include quantum chemistry, molecular spectroscopy, thermodynamics, chemical kinetics, and statistical mechanics of molecules."
+        },
+        "biochem": {
+          "name": "Biochemistry",
+          "prereq": [
+            "molbio",
+            "genchem"
+          ],
+          "coreq": [],
+          "soft": [],
+          "summary": "Chemistry of life exploring proteins, enzymes, metabolism, and molecular mechanisms. Key topics include protein structure and function, enzymes, metabolism (glycolysis, Krebs cycle), bioenergetics, and nucleic acids."
+        }
+      }
+    },
+    "Biology & Life Sciences": {
+      "category": "biology",
+      "order": 4,
+      "subjects": {
+        "cellbio": {
+          "name": "Cell Biology",
+          "prereq": [],
+          "coreq": [
+            "genchem"
+          ],
+          "soft": [],
+          "summary": "Structure and function of cells as the basic unit of life including how cells work, communicate, and reproduce. Key topics include cell structure, membranes, organelles, cell cycle, mitosis and meiosis, cellular respiration, photosynthesis, and cell signaling."
+        },
+        "molbio": {
+          "name": "Molecular Biology",
+          "prereq": [
+            "cellbio"
+          ],
+          "coreq": [],
+          "soft": [],
+          "summary": "DNA, RNA, proteins, and molecular mechanisms of life showing how genetic information flows and is expressed. Key topics include DNA structure and replication, transcription, translation, gene regulation, mutations, and recombinant DNA technology."
+        },
+        "genetics": {
+          "name": "Genetics",
+          "prereq": [
+            "molbio"
+          ],
+          "coreq": [
+            "biochem"
+          ],
+          "soft": [],
+          "summary": "Inheritance, variation, and gene function from Mendel to modern genomics. Key topics include Mendelian genetics, chromosomes, linkage, genetic mapping, population genetics, quantitative genetics, and mutations."
+        },
+        "evolution": {
+          "name": "Evolution",
+          "prereq": [
+            "genetics"
+          ],
+          "coreq": [],
+          "soft": [],
+          "summary": "How life changes over time through natural selection, adaptation, and the history of life. Key topics include natural selection, adaptation, speciation, phylogenetics, molecular evolution, evo-devo, and evolutionary theory."
+        },
+        "ecology": {
+          "name": "Ecology",
+          "prereq": [
+            "evolution"
+          ],
+          "coreq": [],
+          "soft": [],
+          "summary": "Interactions between organisms and environment including populations, communities, and ecosystems. Key topics include population dynamics, community ecology, ecosystem ecology, food webs, biodiversity, conservation, and ecological modeling."
+        },
+        "neuro": {
+          "name": "Neuroscience",
+          "prereq": [
+            "cellbio"
+          ],
+          "coreq": [],
+          "soft": [],
+          "summary": "Brain, neurons, and nervous systems showing how neural circuits produce behavior and cognition. Key topics include neuron structure, action potentials, synapses, neural circuits, sensory systems, motor control, brain anatomy, and neuroplasticity."
+        },
+        "sysbio": {
+          "name": "Systems Biology",
+          "prereq": [
+            "graph",
+            "odes"
+          ],
+          "coreq": [],
+          "soft": [
+            "molbio"
+          ],
+          "summary": "Biology as networks and systems using computational approaches to understanding life. Key topics include gene regulatory networks, metabolic networks, signaling pathways, mathematical modeling, network analysis, and systems approaches."
+        },
+        "bioinfo": {
+          "name": "Bioinformatics",
+          "prereq": [
+            "molbio",
+            "genetics",
+            "algorithms",
+            "prob"
+          ],
+          "coreq": [],
+          "soft": [],
+          "summary": "Computational analysis of biological data including genomics, sequence analysis, and data science for biology. Key topics include sequence alignment, genome assembly, phylogenetics, gene prediction, RNA-seq analysis, and protein structure prediction."
+        },
+        "anatomy": {
+          "name": "Anatomy and Physiology",
+          "prereq": [
+            "cellbio"
+          ],
+          "coreq": [],
+          "soft": [],
+          "summary": "Structure and function of the human body including organ systems and how they work. Key topics include organ systems, tissues, anatomical structures, physiological processes, homeostasis, and body systems integration."
+        },
+        "microbio": {
+          "name": "Microbiology",
+          "prereq": [
+            "cellbio"
+          ],
+          "coreq": [],
+          "soft": [],
+          "summary": "Bacteria, viruses, fungi, and other microorganisms exploring microbial life and disease. Key topics include bacterial structure, viral replication, microbial growth, pathogenesis, antimicrobials, and medical microbiology."
+        },
+        "immunology": {
+          "name": "Immunology",
+          "prereq": [
+            "cellbio"
+          ],
+          "coreq": [],
+          "soft": [],
+          "summary": "Immune system and defense against disease through innate and adaptive immunity. Key topics include innate immunity, adaptive immunity, antibodies, T cells, B cells, immune response, vaccines, and autoimmunity."
+        }
+      }
+    },
+    "Computer Science": {
+      "category": "cs",
+      "order": 5,
+      "subjects": {
+        "algorithms": {
+          "name": "Algorithms",
+          "prereq": [],
+          "coreq": [
+            "discrete"
+          ],
+          "soft": [],
+          "summary": "Design and analysis of efficient algorithms for solving computational problems optimally and understanding complexity. Key topics include sorting, searching, divide and conquer, dynamic programming, greedy algorithms, graph algorithms, and complexity analysis (Big-O)."
+        },
+        "datastructures": {
+          "name": "Data Structures",
+          "prereq": [],
+          "coreq": [
+            "algorithms"
+          ],
+          "soft": [],
+          "summary": "Organizing and storing data efficiently as essential foundation for programming and software engineering. Key topics include arrays, linked lists, stacks, queues, trees, heaps, hash tables, graphs, and time and space complexity."
+        },
+        "computation": {
+          "name": "Theory of Computation",
+          "prereq": [
+            "discrete",
+            "logic"
+          ],
+          "coreq": [],
+          "soft": [],
+          "summary": "Study of what can and cannot be computed through Turing machines, decidability, and computational models. Key topics include Turing machines, decidability, Church-Turing thesis, halting problem, reducibility, and computational models."
+        },
+        "computability": {
+          "name": "Computability Theory",
+          "prereq": [],
+          "coreq": [
+            "computation"
+          ],
+          "soft": [],
+          "summary": "Formal theory of what is computable including decidable and undecidable problems. Key topics include recursive functions, decidability, undecidability, degrees of unsolvability, oracle computation, and recursion theorem."
+        },
+        "complexity": {
+          "name": "Complexity Theory (P vs NP)",
+          "prereq": [],
+          "coreq": [
+            "computability"
+          ],
+          "soft": [],
+          "summary": "Study of how hard problems are to solve through complexity classes and the P vs NP question. Key topics include P, NP, NP-complete, NP-hard, reductions, Cook-Levin theorem, complexity hierarchies, and approximation algorithms."
+        },
+        "quantumcomp": {
+          "name": "Quantum Computing and Computational Complexity",
+          "prereq": [
+            "quantum",
+            "complexity"
+          ],
+          "coreq": [],
+          "soft": [],
+          "summary": "Computation using quantum mechanics through qubits, quantum gates, and quantum algorithms. Key topics include qubits, quantum gates, quantum algorithms (Shor's, Grover's), quantum complexity classes, and quantum error correction."
+        },
+        "ml": {
+          "name": "Machine Learning",
+          "prereq": [
+            "linalg",
+            "calc2",
+            "prob",
+            "algorithms"
+          ],
+          "coreq": [],
+          "soft": [],
+          "summary": "Algorithms that learn from data through supervised, unsupervised, and reinforcement learning approaches. Key topics include supervised learning, regression, classification, neural networks, unsupervised learning, clustering, and dimensionality reduction."
+        },
+        "dl": {
+          "name": "Deep Learning",
+          "prereq": [
+            "ml"
+          ],
+          "coreq": [],
+          "soft": [],
+          "summary": "Neural networks with many layers including CNNs, RNNs, transformers, and modern AI architectures. Key topics include deep neural networks, CNNs, RNNs, attention mechanisms, transformers, backpropagation, optimization, and regularization."
+        },
+        "rl": {
+          "name": "Reinforcement Learning",
+          "prereq": [
+            "ml",
+            "prob"
+          ],
+          "coreq": [],
+          "soft": [],
+          "summary": "Learning through interaction and reward using agents, policies, and optimal decision-making. Key topics include MDPs, value functions, Q-learning, policy gradients, actor-critic, deep RL, and exploration versus exploitation."
+        },
+        "ai": {
+          "name": "Artificial Intelligence",
+          "prereq": [],
+          "coreq": [
+            "ml"
+          ],
+          "soft": [],
+          "summary": "Broad field of intelligent agents covering search, planning, reasoning, and learning. Key topics include search algorithms, game playing, knowledge representation, reasoning under uncertainty, planning, and multi-agent systems."
+        },
+        "aisafety": {
+          "name": "AI Safety and Alignment",
+          "prereq": [
+            "ml",
+            "dl",
+            "rl",
+            "decisiontheory"
+          ],
+          "coreq": [],
+          "soft": [],
+          "summary": "Making AI systems safe, robust, and aligned with human values as critical foundation for beneficial AI. Key topics include value alignment, robustness, interpretability, adversarial examples, reward hacking, scalable oversight, and existential risk."
+        },
+        "security": {
+          "name": "Cybersecurity",
+          "prereq": [
+            "algorithms",
+            "datastructures"
+          ],
+          "coreq": [],
+          "soft": [],
+          "summary": "Protecting systems from attacks through cryptography, network security, and secure systems design. Key topics include cryptography, network security, authentication, access control, secure coding, vulnerabilities, and threat modeling."
+        }
+      }
+    },
+    "Economics & Finance": {
+      "category": "economics",
+      "order": 6,
+      "subjects": {
+        "micro": {
+          "name": "Microeconomics",
+          "prereq": [],
+          "coreq": [],
+          "soft": [
+            "calc1"
+          ],
+          "summary": "Individual decision-making, markets, and incentives exploring supply, demand, and efficiency. Key topics include supply and demand, consumer theory, producer theory, market structures, game theory basics, market failures, and welfare economics."
+        },
+        "behavioral": {
+          "name": "Behavioral Economics",
+          "prereq": [
+            "micro"
+          ],
+          "coreq": [
+            "cogpsych"
+          ],
+          "soft": [],
+          "summary": "How people actually make decisions where psychology meets economics. Key topics include heuristics and biases, prospect theory, bounded rationality, time inconsistency, social preferences, and nudges."
+        },
+        "econometrics": {
+          "name": "Econometrics",
+          "prereq": [
+            "prob",
+            "micro"
+          ],
+          "coreq": [],
+          "soft": [],
+          "summary": "Statistical methods for economic data focusing on causal inference and empirical analysis. Key topics include regression analysis, instrumental variables, panel data, time series, causal inference, difference-in-differences, and RCTs."
+        },
+        "gametheory": {
+          "name": "Game Theory",
+          "prereq": [
+            "prob",
+            "micro"
+          ],
+          "coreq": [],
+          "soft": [],
+          "summary": "Strategic interaction and decision-making exploring Nash equilibria, cooperation, and rationality. Key topics include normal form games, Nash equilibrium, mixed strategies, repeated games, evolutionary game theory, and mechanism design basics."
+        },
+        "mechanism": {
+          "name": "Mechanism Design",
+          "prereq": [
+            "gametheory"
+          ],
+          "coreq": [],
+          "soft": [],
+          "summary": "Designing rules and incentives for desired outcomes through auctions, matching, and incentive compatibility. Key topics include incentive compatibility, revelation principle, auctions, matching markets, voting mechanisms, and implementation theory."
+        },
+        "socialchoice": {
+          "name": "Social Choice Theory",
+          "prereq": [
+            "gametheory"
+          ],
+          "coreq": [],
+          "soft": [],
+          "summary": "Aggregating preferences and voting systems exploring Arrow's impossibility theorem and democratic mechanisms. Key topics include voting systems, Arrow's theorem, Condorcet paradox, strategic voting, fair division, and social welfare functions."
+        },
+        "finecon": {
+          "name": "Financial Economics",
+          "prereq": [
+            "micro",
+            "prob"
+          ],
+          "coreq": [],
+          "soft": [],
+          "summary": "Asset pricing, risk, and financial markets explaining how financial instruments are valued. Key topics include present value, portfolio theory, CAPM, efficient markets, option pricing, risk management, and arbitrage."
+        },
+        "finance": {
+          "name": "Finance/Investing",
+          "prereq": [],
+          "coreq": [
+            "finecon"
+          ],
+          "soft": [],
+          "summary": "Practical finance and investment strategies including stocks, bonds, and portfolio management. Key topics include valuation, portfolio construction, asset allocation, risk assessment, investment strategies, and financial statements."
+        },
+        "accounting": {
+          "name": "Accounting",
+          "prereq": [],
+          "coreq": [],
+          "soft": [],
+          "summary": "Financial recording and reporting for tracking money in organizations. Key topics include financial accounting, managerial accounting, balance sheets, income statements, cash flow, auditing, and tax."
+        },
+        "management": {
+          "name": "Management",
+          "prereq": [],
+          "coreq": [],
+          "soft": [],
+          "summary": "Leading and organizing through planning, strategy, and organizational management. Key topics include planning, organizing, leading, controlling, strategy, decision-making, leadership, and human resources."
+        },
+        "opsresearch": {
+          "name": "Operations Research",
+          "prereq": [],
+          "coreq": [],
+          "soft": [
+            "optimization"
+          ],
+          "summary": "Mathematical optimization for decision-making through linear programming and optimization in operations. Key topics include linear programming, integer programming, network optimization, queuing theory, simulation, and decision analysis."
+        }
+      }
+    },
+    "Psychology": {
+      "category": "psychology",
+      "order": 7,
+      "subjects": {
+        "cogpsych": {
+          "name": "Cognitive Psychology",
+          "prereq": [],
+          "coreq": [],
+          "soft": [],
+          "summary": "How the mind works exploring perception, memory, thinking, and decision-making. Key topics include perception, attention, memory, language, problem-solving, reasoning, decision-making, and cognitive biases."
+        },
+        "jdm": {
+          "name": "Judgment and Decision Making (Kahneman/Tversky)",
+          "prereq": [],
+          "coreq": [
+            "cogpsych"
+          ],
+          "soft": [
+            "prob"
+          ],
+          "summary": "How people make judgments under uncertainty through heuristics, biases, and rationality. Key topics include heuristics (availability, representativeness, anchoring), prospect theory, framing effects, overconfidence, and biases."
+        },
+        "evopsych": {
+          "name": "Evolutionary Psychology",
+          "prereq": [
+            "evolution"
+          ],
+          "coreq": [
+            "cogpsych"
+          ],
+          "soft": [],
+          "summary": "Psychology through the lens of evolution exploring adaptive functions of mind and behavior. Key topics include mate selection, parental investment, cooperation, status, evolutionary origins of cognition and emotion, and modularity."
+        },
+        "socialpsych": {
+          "name": "Social Psychology",
+          "prereq": [
+            "cogpsych"
+          ],
+          "coreq": [],
+          "soft": [],
+          "summary": "How people influence each other through groups, persuasion, and social behavior. Key topics include attribution, attitudes, persuasion, conformity, obedience, group dynamics, stereotypes, aggression, and helping behavior."
+        }
+      }
+    },
+    "Philosophy": {
+      "category": "philosophy",
+      "order": 8,
+      "subjects": {
+        "epistemology": {
+          "name": "Epistemology",
+          "prereq": [],
+          "coreq": [],
+          "soft": [
+            "logic"
+          ],
+          "summary": "Theory of knowledge asking what is knowledge and how do we know. Key topics include justified true belief, skepticism, foundationalism, coherentism, reliabilism, and internalism versus externalism."
+        },
+        "philsci": {
+          "name": "Philosophy of Science",
+          "prereq": [],
+          "coreq": [
+            "epistemology"
+          ],
+          "soft": [],
+          "summary": "Nature of science and scientific knowledge exploring what makes science work. Key topics include scientific method, induction, falsificationism, paradigms, scientific realism, explanation, causation, and laws of nature."
+        },
+        "ethics": {
+          "name": "Ethics",
+          "prereq": [],
+          "coreq": [],
+          "soft": [],
+          "summary": "Study of right and wrong asking how should we live through moral philosophy. Key topics include utilitarianism, deontology, virtue ethics, applied ethics, moral psychology, and normative ethics."
+        },
+        "metaethics": {
+          "name": "Meta-ethics",
+          "prereq": [
+            "ethics"
+          ],
+          "coreq": [],
+          "soft": [],
+          "summary": "Nature of moral facts and judgments exploring what are moral truths. Key topics include moral realism, moral anti-realism, error theory, expressivism, naturalism, non-naturalism, and moral motivation."
+        },
+        "popethics": {
+          "name": "Population Ethics and Longtermism",
+          "prereq": [
+            "ethics"
+          ],
+          "coreq": [],
+          "soft": [
+            "metaethics"
+          ],
+          "summary": "Ethics across time and possible people considering future generations and existential risk. Key topics include repugnant conclusion, person-affecting views, total versus average utilitarianism, longtermism, existential risk, and future generations."
+        },
+        "philmind": {
+          "name": "Philosophy of Mind",
+          "prereq": [],
+          "coreq": [
+            "cogpsych"
+          ],
+          "soft": [
+            "neuro"
+          ],
+          "summary": "Nature of mind and consciousness exploring the mind-body problem and mental states. Key topics include dualism, materialism, functionalism, consciousness, qualia, intentionality, mental causation, and free will."
+        },
+        "consciousness": {
+          "name": "Consciousness Studies",
+          "prereq": [
+            "philmind",
+            "neuro"
+          ],
+          "coreq": [],
+          "soft": [],
+          "summary": "Hard problem of consciousness exploring what is subjective experience. Key topics include hard problem, qualia, philosophical zombies, phenomenal consciousness, neural correlates of consciousness, and theories of consciousness."
+        },
+        "anthropics": {
+          "name": "Anthropics",
+          "prereq": [
+            "prob",
+            "epistemology"
+          ],
+          "coreq": [],
+          "soft": [],
+          "summary": "Reasoning about observers and observation selection effects including fine-tuning and the simulation argument. Key topics include anthropic principle, fine-tuning, Doomsday argument, simulation argument, observer selection effects, and self-locating belief."
+        },
+        "decisiontheory": {
+          "name": "Formal Decision Theory (CDT, FDT, UDT)",
+          "prereq": [
+            "prob",
+            "gametheory"
+          ],
+          "coreq": [],
+          "soft": [],
+          "summary": "Rigorous frameworks for making optimal decisions through causal, functional, and updateless approaches to decision problems. Key topics include causal decision theory, evidential decision theory, Newcomb's problem, functional decision theory, and updateless decision theory."
+        }
+      }
+    },
+    "Social Sciences": {
+      "category": "social",
+      "order": 9,
+      "subjects": {
+        "polecon": {
+          "name": "Political Economy",
+          "prereq": [
+            "micro"
+          ],
+          "coreq": [],
+          "soft": [],
+          "summary": "Intersection of politics and economics exploring institutions, power, and economic outcomes. Key topics include institutions, political institutions and economic growth, rent-seeking, political business cycles, and inequality and redistribution."
+        },
+        "comppol": {
+          "name": "Comparative Politics",
+          "prereq": [],
+          "coreq": [],
+          "soft": [],
+          "summary": "Comparing political systems across countries including institutions, regimes, and governance. Key topics include political systems, democratization, authoritarian regimes, institutions, political culture, and comparative methods."
+        },
+        "ir": {
+          "name": "International Relations",
+          "prereq": [],
+          "coreq": [],
+          "soft": [],
+          "summary": "Relations between states exploring war, peace, cooperation, and global governance. Key topics include theories of IR, war and peace, international organizations, diplomacy, security studies, and global governance."
+        },
+        "policy": {
+          "name": "Public Policy",
+          "prereq": [],
+          "coreq": [],
+          "soft": [],
+          "summary": "How policy is made and implemented including analysis, design, and evaluation of policies. Key topics include policy-making process, policy analysis, implementation, evaluation, policy tools, and regulatory policy."
+        },
+        "uslaw": {
+          "name": "U.S. Law",
+          "prereq": [],
+          "coreq": [],
+          "soft": [],
+          "summary": "American legal system including constitutional law, courts, and legal reasoning. Key topics include constitutional law, judicial system, legal reasoning, major cases, civil rights, and federalism."
+        },
+        "intlaw": {
+          "name": "International Law",
+          "prereq": [],
+          "coreq": [],
+          "soft": [],
+          "summary": "Law governing international relations including treaties, human rights, and international courts. Key topics include treaties, international organizations, human rights law, use of force, international courts, and sovereignty."
+        },
+        "sociology": {
+          "name": "Sociology",
+          "prereq": [],
+          "coreq": [],
+          "soft": [],
+          "summary": "Study of society and social behavior including institutions, inequality, and social change. Key topics include social theory, social stratification, institutions, culture, socialization, deviance, and social change."
+        },
+        "movements": {
+          "name": "Social Movements",
+          "prereq": [],
+          "coreq": [],
+          "soft": [],
+          "summary": "Collective action for social change exploring how movements form, succeed, or fail. Key topics include resource mobilization, framing, political opportunity, collective action, movement strategies, and outcomes."
+        },
+        "orgs": {
+          "name": "Organizations",
+          "prereq": [],
+          "coreq": [],
+          "soft": [],
+          "summary": "How organizations work through bureaucracy, coordination, and institutional design. Key topics include organizational structure, bureaucracy, coordination, decision-making, power, and organizational change."
+        },
+        "orgbehavior": {
+          "name": "Organizational Behavior",
+          "prereq": [],
+          "coreq": [],
+          "soft": [],
+          "summary": "Behavior in organizational settings including motivation, leadership, and group dynamics. Key topics include motivation, leadership, groups and teams, organizational culture, decision-making, conflict, and change management."
+        }
+      }
+    },
+    "Health Sciences": {
+      "category": "health",
+      "order": 10,
+      "subjects": {
+        "epi": {
+          "name": "Epidemiology",
+          "prereq": [
+            "prob"
+          ],
+          "coreq": [],
+          "soft": [],
+          "summary": "Distribution and determinants of disease in populations exploring how diseases spread. Key topics include disease transmission, SIR models, outbreak investigation, study designs, causal inference, and surveillance."
+        },
+        "pathology": {
+          "name": "Pathology",
+          "prereq": [
+            "cellbio"
+          ],
+          "coreq": [],
+          "soft": [],
+          "summary": "Study of disease mechanisms exploring what goes wrong in disease. Key topics include cell injury, inflammation, neoplasia, immune disorders, infectious disease, and mechanisms of disease."
+        },
+        "pubhealth": {
+          "name": "Public Health",
+          "prereq": [
+            "epi"
+          ],
+          "coreq": [],
+          "soft": [],
+          "summary": "Health at the population level including prevention, policy, and health systems. Key topics include epidemiology, health policy, prevention, screening, health systems, environmental health, and global health."
+        },
+        "biosecurity": {
+          "name": "Biosecurity & Pandemic Preparedness",
+          "prereq": [
+            "epi",
+            "pubhealth"
+          ],
+          "coreq": [],
+          "soft": [
+            "microbio"
+          ],
+          "summary": "Preventing and responding to biological threats including bioterrorism and pandemic prevention. Key topics include pandemic preparedness, bioterrorism, dual-use research, surveillance, outbreak response, biosafety, and global health security."
+        }
+      }
+    },
+    "History & Humanities": {
+      "category": "humanities",
+      "order": 11,
+      "subjects": {
+        "bighist": {
+          "name": "Big History",
+          "prereq": [],
+          "coreq": [],
+          "soft": [],
+          "summary": "The entire history of the universe from Big Bang to present integrating cosmology, geology, biology, and human history. Key topics include Big Bang, star formation, Earth formation, origin of life, human evolution, agricultural revolution, industrial revolution, and modern era."
+        },
+        "modernhist": {
+          "name": "Modern History",
+          "prereq": [],
+          "coreq": [],
+          "soft": [],
+          "summary": "History from Enlightenment to present including revolutions, wars, and modern world formation. Key topics include Enlightenment, French Revolution, industrialization, World Wars, Cold War, decolonization, and contemporary history."
+        },
+        "intelhist": {
+          "name": "Intellectual History",
+          "prereq": [],
+          "coreq": [],
+          "soft": [],
+          "summary": "History of ideas exploring how thought has evolved across time. Key topics include history of philosophy, scientific revolutions, Enlightenment thought, intellectual movements, and great thinkers."
+        },
+        "scihist": {
+          "name": "History of Science",
+          "prereq": [],
+          "coreq": [],
+          "soft": [],
+          "summary": "How scientific knowledge developed through scientific revolutions and paradigm shifts. Key topics include scientific revolution, major discoveries, paradigm shifts, scientists and their context, and development of scientific method."
+        },
+        "polhist": {
+          "name": "Political History",
+          "prereq": [],
+          "coreq": [],
+          "soft": [],
+          "summary": "History of political systems, leaders, and governance including wars, revolutions, and political change. Key topics include political systems evolution, wars, revolutions, leaders and statesmen, political movements, and international relations history."
+        },
+        "littheory": {
+          "name": "Literary Theory",
+          "prereq": [],
+          "coreq": [],
+          "soft": [],
+          "summary": "Frameworks for interpreting literature through critical approaches to texts. Key topics include formalism, structuralism, post-structuralism, psychoanalytic theory, feminist theory, postcolonial theory, and reader-response."
+        },
+        "complit": {
+          "name": "Comparative Literature",
+          "prereq": [],
+          "coreq": [],
+          "soft": [],
+          "summary": "Literature across languages and cultures using comparative approaches and world literature perspectives. Key topics include comparative methods, translation theory, world literature, literary movements across cultures, and intertextuality."
+        },
+        "arthist": {
+          "name": "Art History",
+          "prereq": [],
+          "coreq": [],
+          "soft": [],
+          "summary": "History of visual arts including movements, artists, and cultural context. Key topics include art movements, major artists, iconography, style analysis, cultural context, and art criticism."
+        },
+        "phonetics": {
+          "name": "Phonetics",
+          "prereq": [],
+          "coreq": [],
+          "soft": [],
+          "summary": "Speech sounds and their production through articulatory, acoustic, and auditory phonetics. Key topics include articulation, acoustic properties, IPA, phonetic transcription, speech production, and perception."
+        }
+      }
+    },
+    "Languages": {
+      "category": "languages",
+      "order": 12,
+      "subjects": {
+        "japanese": {
+          "name": "Japanese (continue to fluency)",
+          "prereq": [],
+          "coreq": [],
+          "soft": [],
+          "summary": "Continuing Japanese language study toward fluency including grammar, kanji, reading, and conversation. Key topics include advanced grammar, kanji mastery, reading practice, listening comprehension, conversation, and JLPT preparation."
+        },
+        "chinese": {
+          "name": "Chinese",
+          "prereq": [],
+          "coreq": [],
+          "soft": [],
+          "summary": "Mandarin Chinese language including characters, tones, grammar, and culture. Key topics include pinyin, tones, characters, grammar, reading, writing, listening, speaking, and cultural context."
+        }
+      }
+    },
+    "Interdisciplinary": {
+      "category": "interdisciplinary",
+      "order": 13,
+      "subjects": {
+        "expdesign": {
+          "name": "Experimental Design",
+          "prereq": [
+            "prob"
+          ],
+          "coreq": [],
+          "soft": [],
+          "summary": "Designing experiments to test hypotheses through randomization, control, and causal inference. Key topics include randomized controlled trials, factorial designs, blocking, blinding, confounding, statistical power, and sample size."
+        },
+        "forecasting": {
+          "name": "Forecasting & Prediction",
+          "prereq": [
+            "prob",
+            "jdm"
+          ],
+          "coreq": [],
+          "soft": [],
+          "summary": "Making and evaluating predictions through calibration, scoring rules, and superforecasting. Key topics include base rates, reference class forecasting, calibration, Brier scores, superforecasting, prediction markets, and aggregation."
+        },
+        "writing": {
+          "name": "Writing & Communication (rhetoric, technical writing)",
+          "prereq": [],
+          "coreq": [],
+          "soft": [],
+          "summary": "Effective written and spoken communication including rhetoric, technical writing, and clarity. Key topics include clear writing, argumentation, rhetoric, technical documentation, scientific writing, presentations, and persuasion."
+        },
+        "complexity-sci": {
+          "name": "Complexity Science",
+          "prereq": [
+            "dynamical",
+            "graph"
+          ],
+          "coreq": [],
+          "soft": [
+            "statmech"
+          ],
+          "summary": "Emergent behavior in complex systems including networks, scaling, and self-organization. Key topics include emergence, self-organization, power laws, phase transitions, networks, agent-based models, and cellular automata."
+        },
+        "xrisk": {
+          "name": "Existential Risk Studies",
+          "prereq": [
+            "aisafety",
+            "biosecurity"
+          ],
+          "coreq": [],
+          "soft": [
+            "philsci"
+          ],
+          "summary": "Risks that threaten human extinction or permanent civilizational collapse including AI, bio, nuclear, and climate. Key topics include existential risk taxonomy, AI risk, biorisk, nuclear war, climate change, global priorities, and longtermism."
+        },
+        "rationality": {
+          "name": "Rationality (LessWrong canon)",
+          "prereq": [
+            "prob",
+            "jdm",
+            "decisiontheory"
+          ],
+          "coreq": [],
+          "soft": [],
+          "summary": "Art of human rationality focused on overcoming bias and thinking clearly through LessWrong Sequences. Key topics include cognitive biases, Bayesian reasoning, map and territory, reductionism, mysterious answers, and motivated cognition."
+        },
+        "ea": {
+          "name": "Effective Altruism (cause prioritization, career planning)",
+          "prereq": [
+            "ethics",
+            "micro",
+            "rationality"
+          ],
+          "coreq": [],
+          "soft": [],
+          "summary": "Using evidence and reason to do the most good through cause prioritization and career planning. Key topics include cause prioritization, scale and neglectedness and tractability, global health, animal welfare, longtermism, earning to give, and career capital."
+        }
+      }
+    },
+    "Other Subjects": {
+      "category": "other",
+      "order": 14,
+      "subjects": {
+        "physgeo": {
+          "name": "Physical Geography",
+          "prereq": [],
+          "coreq": [],
+          "soft": [],
+          "summary": "Earth's physical features including landforms, climate, and natural processes. Key topics include geomorphology, climatology, biogeography, hydrology, soil geography, and natural hazards."
+        },
+        "humangeo": {
+          "name": "Human Geography",
+          "prereq": [],
+          "coreq": [],
+          "soft": [],
+          "summary": "Human populations, settlements, and spatial patterns including economic, cultural, and urban geography. Key topics include population geography, urban geography, economic geography, cultural geography, political geography, and spatial analysis."
+        },
+        "improv": {
+          "name": "Improv (Theatre)",
+          "prereq": [],
+          "coreq": [],
+          "soft": [],
+          "summary": "Improvisational theatre and performance emphasizing spontaneity, collaboration, and creativity. Key topics include yes-and, scene work, character, spontaneity, ensemble work, listening, and performance skills."
+        },
+        "geology": {
+          "name": "Geology",
+          "prereq": [],
+          "coreq": [],
+          "soft": [],
+          "summary": "Study of Earth including rocks, minerals, plate tectonics, and Earth history. Key topics include minerals, rocks, plate tectonics, geological time, sedimentology, structural geology, and Earth history."
+        },
+        "agronomy": {
+          "name": "Agronomy",
+          "prereq": [],
+          "coreq": [],
+          "soft": [],
+          "summary": "Crop science and soil management for agriculture and food production. Key topics include crop physiology, soil science, pest management, crop breeding, sustainable agriculture, and precision agriculture."
+        }
+      }
+    }
+  }
+}

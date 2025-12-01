@@ -10,10 +10,11 @@
 - Split app.js into more useful sub-files
 - Organize and clean repo
 - Cog should not be visible in public view
-- Make ico file (me)
+
 
 ## Done
 
+- Make favicon (me)
 - Make setting page only useable in owner mode
 - Move sync and theme toggle to inside settings page, move cog icon to farthest right
   - Cog icon should not appear in public mode, only the theme toggl button

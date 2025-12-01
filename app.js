@@ -1,4 +1,7 @@
-// Helper utilities
+// ==========================================
+// HELPER UTILITIES
+// ==========================================
+
 function findSubject(subjectId) {
     for (const tierData of Object.values(subjects)) {
         const subject = tierData.subjects.find(s => s.id === subjectId);
@@ -17,7 +20,10 @@ function findSubjectAndTier(subjectId) {
     return null;
 }
 
-// Global variables
+// ==========================================
+// GLOBAL STATE
+// ==========================================
+
 let subjects = {};
 let subjectProgress = {};
 let currentEditingSubject = null;
@@ -26,6 +32,10 @@ let currentResourceContext = null; // 'subject' or 'project'
 let tempProjectResources = []; // Temporary storage for new project resources
 let currentView = 'dashboard'; // 'dashboard' or 'catalog'
 let viewMode = 'public'; // 'public' or 'owner'
+
+// ==========================================
+// DATA LOADING & SAVING
+// ==========================================
 
 // Load catalog from catalog.json
 async function loadCatalog() {
@@ -143,28 +153,6 @@ function findSubjectById(subjects, id) {
         if (subject) return subject;
     }
     return null;
-}
-
-// Load saved data (legacy localStorage fallback - deprecated)
-// This function is kept for backwards compatibility but should not be used
-// Data loading now happens via loadCatalog() and mergeCatalogWithUserData()
-function loadAllData() {
-    // Subjects - load from localStorage cache if available
-    try {
-        const savedSubjects = localStorage.getItem('subjects');
-        subjects = savedSubjects ? JSON.parse(savedSubjects) : {};
-        if (!subjects || Object.keys(subjects).length === 0) {
-            subjects = {};
-        }
-    } catch (_) {
-        subjects = {};
-    }
-    // Progress
-    try {
-        subjectProgress = JSON.parse(localStorage.getItem('subjectProgress')) || {};
-    } catch (_) {
-        subjectProgress = {};
-    }
 }
 
 // Save functions
@@ -361,9 +349,10 @@ async function saveDataToGitHub() {
     }
 }
 
-// Removed: saveExpandedState - no longer using expandable cards
+// ==========================================
+// THEME MANAGEMENT
+// ==========================================
 
-// Theme management
 function loadTheme() {
     const saved = localStorage.getItem('theme');
     return saved || 'dark';
@@ -420,7 +409,10 @@ function initializeTheme() {
     updateThemeButton(theme);
 }
 
-// View management
+// ==========================================
+// VIEW MANAGEMENT
+// ==========================================
+
 function loadView() {
     const saved = localStorage.getItem('currentView');
     return saved || 'dashboard';
@@ -459,7 +451,10 @@ function switchView(view) {
     render();
 }
 
-// Subject progress functions
+// ==========================================
+// PROGRESS & STATE MANAGEMENT
+// ==========================================
+
 function getSubjectProgress(id) {
     return subjectProgress[id] || 'empty';
 }
@@ -503,10 +498,6 @@ function cycleProjectProgress(subjectId, projectIndex, event) {
     render();
 }
 
-// Expand/Collapse state management
-// Removed: toggleSubjectExpanded, isSubjectExpanded, toggleProjectExpanded, isProjectExpanded
-// No longer using expandable/collapsible subject cards - content always visible
-
 // Calculate readiness
 function calculateReadiness(subject) {
     if (!subject.prereq || subject.prereq.length === 0) {
@@ -526,16 +517,16 @@ function calculateReadiness(subject) {
     }
 }
 
-// Stats calculation
-// Removed: calculateStats() and updateStats() - old UI stats display (not used)
-
 function calculateTierProgress(tier) {
     let total = tier.subjects.length;
     let completed = tier.subjects.filter(s => getSubjectProgress(s.id) === 'complete').length;
     return `${completed}/${total}`;
 }
 
-// Rendering functions
+// ==========================================
+// RENDERING FUNCTIONS
+// ==========================================
+
 function renderDependenciesInCard(subject) {
     if (!subject.prereq && !subject.soft && !subject.coreq) return '';
 
@@ -957,7 +948,10 @@ function applyFilters() {
     });
 }
 
-// Subject Detail Modal
+// ==========================================
+// MODAL MANAGEMENT - SUBJECT
+// ==========================================
+
 function openSubjectDetail(subjectId, event) {
     if (event) event.stopPropagation();
     currentEditingSubject = subjectId;
@@ -1094,7 +1088,10 @@ function renderDependenciesInModal(subject) {
         : '<p class="empty-state">No prerequisites or recommendations</p>';
 }
 
-// Resource Management
+// ==========================================
+// MODAL MANAGEMENT - RESOURCES
+// ==========================================
+
 function renderResourcesList(resources, containerId, type) {
     const container = document.getElementById(containerId);
     const isPublicMode = viewMode === 'public';
@@ -1202,7 +1199,10 @@ function removeResource(index, type) {
     }
 }
 
-// Project Management
+// ==========================================
+// MODAL MANAGEMENT - PROJECTS
+// ==========================================
+
 function renderProjectsList(projects) {
     const container = document.getElementById('projectsList');
     const isPublicMode = viewMode === 'public';
@@ -1416,7 +1416,10 @@ function findDependentSubjects(subjectId) {
     return dependents;
 }
 
-// Project Detail Modal
+// ==========================================
+// MODAL MANAGEMENT - PROJECT DETAIL
+// ==========================================
+
 function closeProjectDetail() {
     document.getElementById('projectDetailModal').classList.remove('active');
     currentEditingProject = null;
@@ -1487,6 +1490,10 @@ async function updateViewMode() {
     updateSettingsButtonVisibility();
     render();
 }
+
+// ==========================================
+// MODAL MANAGEMENT - AUTHENTICATION
+// ==========================================
 
 function updateAuthButton() {
     const authButton = document.getElementById('authButton');
@@ -1635,7 +1642,10 @@ async function manualSync() {
     }
 }
 
-// Settings Modal Functions
+// ==========================================
+// MODAL MANAGEMENT - SETTINGS
+// ==========================================
+
 function openSettingsModal() {
     if (viewMode === 'public') {
         console.warn('[Settings] Settings not available in public mode');
@@ -1843,7 +1853,10 @@ async function resetAllData() {
     alert('All data has been reset successfully.');
 }
 
-// Subject Creation Functions
+// ==========================================
+// MODAL MANAGEMENT - CREATE SUBJECT
+// ==========================================
+
 function getAllSubjectIds() {
     const subjectIds = [];
     for (const tierData of Object.values(subjects)) {
@@ -2064,6 +2077,10 @@ function saveNewSubject() {
 
     alert(`Subject "${name}" created successfully!`);
 }
+
+// ==========================================
+// GLOBAL EXPORTS & INITIALIZATION
+// ==========================================
 
 // Make functions globally accessible for inline onclick handlers
 window.cycleProgress = cycleProgress;

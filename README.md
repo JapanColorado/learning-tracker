@@ -2,7 +2,7 @@
 
 A lightweight web-based learning tracker for organizing and tracking progress across multiple subjects, fields, and learning projects. Hosted on GitHub Pages with cross-device sync and public read-only sharing.
 
-**Live Demo**: [https://japancolorado.github.io/learning-tracker/](https://japancolorado.github.io/learning-tracker/)
+**Live Demo**: [https://japancolorado.github.io/polymathica/](https://japancolorado.github.io/polymathica/)
 
 ## Features
 
@@ -435,6 +435,43 @@ A: Yes, but you'll lose cross-device sync and public sharing. Just open `index.h
 ## License
 
 MIT License - feel free to use, modify, and distribute.
+
+---
+
+## Appendix: Renaming Your Repository
+
+If you want to rename this repository (e.g., from `learning-tracker` to `my-learning-path`), follow these steps:
+
+### 1. Rename on GitHub
+- Go to repository **Settings** → scroll to "Repository name"
+- Enter new name and click **Rename**
+- New URL: `https://github.com/USERNAME/NEW_NAME`
+
+### 2. Update config.js
+Update the repository name in your code:
+
+```javascript
+const CONFIG = {
+    github: {
+        repoName: 'NEW_NAME',  // ← Change this
+        // ... rest stays the same
+    }
+};
+```
+
+### 3. Commit & Push
+```bash
+git add config.js
+git commit -m "Update repository name in config"
+git push origin main
+```
+
+### 4. Re-authenticate
+- Visit your new GitHub Pages URL: `https://USERNAME.github.io/NEW_NAME/`
+- Sign in again with your Personal Access Token
+- Your data will sync from the renamed repository
+
+**Note**: GitHub Pages URL updates automatically, but may take 2-3 minutes. GitHub redirects old URLs temporarily.
 
 ---
 

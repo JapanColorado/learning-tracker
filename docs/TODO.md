@@ -1,13 +1,12 @@
 # TODO
 
-- Write good readme (short, to the point)
 - Simplify subject catalog
   - eg. get rid of (continue to fluency) in Japanese subject
 
 ## Done
 
+- Write good readme (short, to the point)
 - Only sync every 5 minutes when changes are made
-
 - Make add subject unclickable in public mode
 - Modularize codebase
 - Hide summaries on dashboard subject cards

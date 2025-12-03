@@ -1,13 +1,14 @@
 {
   "schema": "3.0",
-  "lastModified": "2025-12-03T03:56:58.812Z",
+  "lastModified": "2025-12-03T20:33:32.438Z",
   "progress": {
     "calc1": "complete",
     "calc2": "partial",
     "japanese": "partial",
     "electromagnetism": "partial",
     "digital-signals-theory": "empty",
-    "linalg": "empty"
+    "linalg": "empty",
+    "optics": "partial"
   },
   "overlays": {
     "calc2": {

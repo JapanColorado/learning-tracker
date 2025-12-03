@@ -1,9 +1,9 @@
 {
   "schema": "3.0",
-  "catalogVersion": "2025-12-01",
-  "lastUpdated": "2025-12-01T03:31:17.873Z",
+  "catalogVersion": "2025-12-02",
+  "lastUpdated": "2025-12-02T00:00:00.000Z",
   "metadata": {
-    "totalSubjects": 118,
+    "totalSubjects": 131,
     "totalTiers": 14
   },
   "tiers": {
@@ -54,6 +54,18 @@
           "soft": [],
           "summary": "Rigorous treatment of probability and statistical inference from a Bayesian perspective for updating beliefs with evidence and making decisions under uncertainty. Key topics include probability distributions, Bayes' theorem, conditional probability, expectation, variance, hypothesis testing, and Bayesian inference."
         },
+        "stochastic": {
+          "name": "Stochastic Processes",
+          "prereq": [
+            "prob",
+            "calc2"
+          ],
+          "coreq": [],
+          "soft": [
+            "measure"
+          ],
+          "summary": "Random processes evolving over time including Markov chains, Brownian motion, and applications to finance and science. Key topics include Markov chains, Poisson processes, Brownian motion, martingales, stochastic calculus, Ito's lemma, and stochastic differential equations."
+        },
         "discrete": {
           "name": "Discrete Mathematics and Combinatorics",
           "prereq": [],
@@ -89,6 +101,27 @@
             "logic"
           ],
           "summary": "Rigorous foundations of calculus understanding limits, continuity, differentiation, and integration with mathematical precision. Key topics include sequences, series, limits, continuity, differentiation, Riemann integration, uniform convergence, and metric spaces."
+        },
+        "measure": {
+          "name": "Measure Theory",
+          "prereq": [
+            "realanalysis"
+          ],
+          "coreq": [],
+          "soft": [],
+          "summary": "Rigorous foundations for integration and probability through measures, measurable functions, and Lebesgue integration. Key topics include sigma-algebras, measures, Lebesgue measure, measurable functions, Lebesgue integration, convergence theorems, and product measures."
+        },
+        "functional": {
+          "name": "Functional Analysis",
+          "prereq": [
+            "realanalysis",
+            "linalg"
+          ],
+          "coreq": [],
+          "soft": [
+            "measure"
+          ],
+          "summary": "Infinite-dimensional vector spaces and linear operators essential for quantum mechanics and PDEs. Key topics include Banach spaces, Hilbert spaces, linear operators, dual spaces, weak convergence, spectral theory, and compact operators."
         },
         "complexanalysis": {
           "name": "Complex Analysis",
@@ -147,7 +180,9 @@
             "realanalysis"
           ],
           "coreq": [],
-          "soft": [],
+          "soft": [
+            "logic"
+          ],
           "summary": "Study of properties preserved under continuous deformation exploring shape without distance. Key topics include topological spaces, open and closed sets, continuity, compactness, connectedness, metric spaces, and homeomorphisms."
         },
         "numerical": {
@@ -238,16 +273,39 @@
           ],
           "summary": "Electric and magnetic fields, Maxwell's equations, and electromagnetic waves explaining how light and electricity work. Key topics include electric fields and potential, Gauss's law, magnetic fields, Ampère's law, Faraday's law, Maxwell's equations, and EM waves."
         },
+        "optics": {
+          "name": "Optics",
+          "prereq": [
+            "electromagnetism"
+          ],
+          "coreq": [],
+          "soft": [],
+          "summary": "Light and optical phenomena including geometric optics, wave optics, and modern optical systems. Key topics include reflection, refraction, lenses, mirrors, interference, diffraction, polarization, and optical instruments."
+        },
+        "fluiddynamics": {
+          "name": "Fluid Dynamics",
+          "prereq": [
+            "calc3",
+            "odes"
+          ],
+          "coreq": [],
+          "soft": [
+            "classical",
+            "pdes"
+          ],
+          "summary": "Motion of fluids including liquids and gases through Navier-Stokes equations and applications. Key topics include fluid statics, Euler equations, Navier-Stokes equations, Bernoulli's principle, boundary layers, turbulence, and viscosity."
+        },
         "quantum": {
           "name": "Quantum Mechanics",
           "prereq": [
             "linalg",
-            "complexanalysis",
             "odes",
             "classical"
           ],
           "coreq": [],
-          "soft": [],
+          "soft": [
+            "complexanalysis"
+          ],
           "summary": "Physics at atomic scale exploring wave-particle duality, uncertainty, and the fundamental nature of reality. Key topics include wave functions, Schrödinger equation, operators, uncertainty principle, quantum tunneling, harmonic oscillator, hydrogen atom, and spin."
         },
         "statmech": {
@@ -282,6 +340,19 @@
             "relativity"
           ],
           "summary": "Fundamental particles and forces through the Standard Model explaining what everything is made of. Key topics include quarks, leptons, gauge bosons, Standard Model, Feynman diagrams, particle interactions, and conservation laws."
+        },
+        "qft": {
+          "name": "Quantum Field Theory",
+          "prereq": [
+            "quantum",
+            "particle",
+            "relativity"
+          ],
+          "coreq": [],
+          "soft": [
+            "functional"
+          ],
+          "summary": "Quantum mechanics of fields combining quantum theory and special relativity as foundation of particle physics. Key topics include canonical quantization, Feynman path integrals, gauge theories, renormalization, QED, Yang-Mills theory, and symmetry breaking."
         },
         "condensed": {
           "name": "Condensed Matter Physics",
@@ -322,7 +393,9 @@
           ],
           "coreq": [],
           "soft": [
-            "thermo"
+            "thermo",
+            "genchem",
+            "biochem"
           ],
           "summary": "Physical principles in biological systems from molecular machines to organism-level physics. Key topics include biomolecular structure, molecular motors, membrane biophysics, nerve impulses, biomechanics, and single-molecule techniques."
         }
@@ -338,6 +411,37 @@
           "coreq": [],
           "soft": [],
           "summary": "Atomic structure, bonding, reactions, and stoichiometry as foundation for understanding matter and chemical processes. Key topics include atomic structure, periodic table, chemical bonding, stoichiometry, thermochemistry, equilibrium, acids and bases, and redox reactions."
+        },
+        "orgchem": {
+          "name": "Organic Chemistry",
+          "prereq": [
+            "genchem"
+          ],
+          "coreq": [],
+          "soft": [],
+          "summary": "Chemistry of carbon compounds including structure, reactivity, and synthesis of organic molecules. Key topics include functional groups, stereochemistry, reaction mechanisms, organic synthesis, spectroscopy, aromatics, and biomolecules."
+        },
+        "inorgchem": {
+          "name": "Inorganic Chemistry",
+          "prereq": [
+            "genchem"
+          ],
+          "coreq": [],
+          "soft": [
+            "quantum"
+          ],
+          "summary": "Chemistry of elements and compounds beyond organic chemistry including coordination complexes and materials. Key topics include coordination chemistry, crystal field theory, organometallics, bioinorganic chemistry, solid-state chemistry, and main group chemistry."
+        },
+        "analchem": {
+          "name": "Analytical Chemistry",
+          "prereq": [
+            "genchem"
+          ],
+          "coreq": [],
+          "soft": [
+            "prob"
+          ],
+          "summary": "Techniques for identifying and quantifying chemical substances through instrumental and wet methods. Key topics include spectroscopy, chromatography, electrochemistry, mass spectrometry, titrations, statistical analysis, and quality control."
         },
         "physchem": {
           "name": "Physical Chemistry",
@@ -508,39 +612,30 @@
           "soft": [],
           "summary": "Organizing and storing data efficiently as essential foundation for programming and software engineering. Key topics include arrays, linked lists, stacks, queues, trees, heaps, hash tables, graphs, and time and space complexity."
         },
+        "databases": {
+          "name": "Databases",
+          "prereq": [
+            "datastructures"
+          ],
+          "coreq": [],
+          "soft": [],
+          "summary": "Design and implementation of database systems for storing, querying, and managing data. Key topics include relational databases, SQL, database design, normalization, transactions, indexing, query optimization, NoSQL, and distributed databases."
+        },
         "computation": {
-          "name": "Theory of Computation",
+          "name": "Theory of Computation (Computability & Complexity)",
           "prereq": [
             "discrete",
             "logic"
           ],
           "coreq": [],
           "soft": [],
-          "summary": "Study of what can and cannot be computed through Turing machines, decidability, and computational models. Key topics include Turing machines, decidability, Church-Turing thesis, halting problem, reducibility, and computational models."
-        },
-        "computability": {
-          "name": "Computability Theory",
-          "prereq": [],
-          "coreq": [
-            "computation"
-          ],
-          "soft": [],
-          "summary": "Formal theory of what is computable including decidable and undecidable problems. Key topics include recursive functions, decidability, undecidability, degrees of unsolvability, oracle computation, and recursion theorem."
-        },
-        "complexity": {
-          "name": "Complexity Theory (P vs NP)",
-          "prereq": [],
-          "coreq": [
-            "computability"
-          ],
-          "soft": [],
-          "summary": "Study of how hard problems are to solve through complexity classes and the P vs NP question. Key topics include P, NP, NP-complete, NP-hard, reductions, Cook-Levin theorem, complexity hierarchies, and approximation algorithms."
+          "summary": "Study of what can and cannot be computed and how hard problems are to solve through Turing machines, decidability, and complexity classes. Key topics include Turing machines, decidability, Church-Turing thesis, halting problem, recursive functions, P vs NP, NP-completeness, reductions, complexity hierarchies, and approximation algorithms."
         },
         "quantumcomp": {
           "name": "Quantum Computing and Computational Complexity",
           "prereq": [
             "quantum",
-            "complexity"
+            "computation"
           ],
           "coreq": [],
           "soft": [],
@@ -589,13 +684,14 @@
         "aisafety": {
           "name": "AI Safety and Alignment",
           "prereq": [
-            "ml",
+            "ml"
+          ],
+          "coreq": [],
+          "soft": [
             "dl",
             "rl",
             "decisiontheory"
           ],
-          "coreq": [],
-          "soft": [],
           "summary": "Making AI systems safe, robust, and aligned with human values as critical foundation for beneficial AI. Key topics include value alignment, robustness, interpretability, adversarial examples, reward hacking, scalable oversight, and existential risk."
         },
         "security": {
@@ -620,6 +716,15 @@
           "coreq": [],
           "soft": [],
           "summary": "Individual decision-making, markets, and incentives exploring supply, demand, and efficiency. Key topics include supply and demand, consumer theory, producer theory, market structures, game theory basics, market failures, and welfare economics."
+        },
+        "macro": {
+          "name": "Macroeconomics",
+          "prereq": [],
+          "coreq": [],
+          "soft": [
+            "micro"
+          ],
+          "summary": "Economy-wide phenomena including growth, unemployment, inflation, and monetary and fiscal policy. Key topics include GDP, aggregate demand and supply, inflation, unemployment, business cycles, monetary policy, fiscal policy, and economic growth."
         },
         "behavioral": {
           "name": "Behavioral Economics",
@@ -726,6 +831,15 @@
           "soft": [],
           "summary": "How the mind works exploring perception, memory, thinking, and decision-making. Key topics include perception, attention, memory, language, problem-solving, reasoning, decision-making, and cognitive biases."
         },
+        "devpsych": {
+          "name": "Developmental Psychology",
+          "prereq": [
+            "cogpsych"
+          ],
+          "coreq": [],
+          "soft": [],
+          "summary": "How humans develop and change across the lifespan from infancy to old age. Key topics include cognitive development, social development, moral development, attachment, Piaget's stages, language acquisition, and lifespan development."
+        },
         "decisionmaking": {
           "name": "Judgment and Decision Making (Kahneman/Tversky)",
           "prereq": [],
@@ -787,6 +901,15 @@
           "coreq": [],
           "soft": [],
           "summary": "Study of right and wrong asking how should we live through moral philosophy. Key topics include utilitarianism, deontology, virtue ethics, applied ethics, moral psychology, and normative ethics."
+        },
+        "polphil": {
+          "name": "Political Philosophy",
+          "prereq": [],
+          "coreq": [],
+          "soft": [
+            "ethics"
+          ],
+          "summary": "Justice, rights, authority, and the ideal state exploring political legitimacy and social order. Key topics include social contract theory, liberty, equality, justice, rights, democracy, authority, Rawls, Nozick, and libertarianism."
         },
         "metaethics": {
           "name": "Meta-ethics",
@@ -989,6 +1112,22 @@
           "coreq": [],
           "soft": [],
           "summary": "The entire history of the universe from Big Bang to present integrating cosmology, geology, biology, and human history. Key topics include Big Bang, star formation, Earth formation, origin of life, human evolution, agricultural revolution, industrial revolution, and modern era."
+        },
+        "ancienthist": {
+          "name": "Ancient History",
+          "prereq": [],
+          "coreq": [],
+          "soft": [],
+          "summary": "History of ancient civilizations from earliest records to fall of Rome including Mesopotamia, Egypt, Greece, and Rome. Key topics include Sumer, Egypt, classical Greece, Alexander, Roman Republic, Roman Empire, ancient China, and Persia."
+        },
+        "medievalhist": {
+          "name": "Medieval History",
+          "prereq": [],
+          "coreq": [],
+          "soft": [
+            "ancienthist"
+          ],
+          "summary": "European and world history from fall of Rome to Renaissance including feudalism, crusades, and Islamic golden age. Key topics include Byzantine Empire, Islamic civilization, feudalism, Crusades, Mongol Empire, medieval Christianity, and Black Death."
         },
         "modernhist": {
           "name": "Modern History",

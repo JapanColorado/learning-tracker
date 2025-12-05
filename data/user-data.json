@@ -1,6 +1,6 @@
 {
   "schema": "3.0",
-  "lastModified": "2025-12-03T20:33:36.556Z",
+  "lastModified": "2025-12-05T04:56:49.457Z",
   "progress": {
     "calc1": "complete",
     "calc2": "partial",
@@ -8,7 +8,8 @@
     "electromagnetism": "partial",
     "digital-signals-theory": "empty",
     "linalg": "empty",
-    "optics": "partial"
+    "optics": "partial",
+    "naturalism": "empty"
   },
   "overlays": {
     "calc2": {
@@ -124,6 +125,11 @@
           "type": "link",
           "value": "MRU Development Economics",
           "url": "https://mru.org/development-economics"
+        },
+        {
+          "type": "link",
+          "value": "Moral Parliament Tool",
+          "url": "https://parliament.rethinkpriorities.org/projects"
         }
       ]
     }
@@ -144,6 +150,38 @@
           "type": "link",
           "value": "Digital Signals Theory Interactive Textbook",
           "url": "https://brianmcfee.net/dstbook-site/content/intro.html"
+        }
+      ],
+      "projects": []
+    },
+    "naturalism": {
+      "name": "Naturalism",
+      "tier": "Philosophy",
+      "prereq": [],
+      "coreq": [],
+      "soft": [],
+      "summary": "Knowing the territory takes patient and direct observation.",
+      "goal": null,
+      "resources": [
+        {
+          "type": "link",
+          "value": "Intro Sequence",
+          "url": "https://www.lesswrong.com/s/evLkoqsbi79AnM5sz"
+        },
+        {
+          "type": "link",
+          "value": "Demo Sequence",
+          "url": "https://www.lesswrong.com/s/XJBaPPEYAPeDzuAsy"
+        },
+        {
+          "type": "link",
+          "value": "Nuts and Bolts Sequence",
+          "url": "https://www.lesswrong.com/s/zLib3j2Fdnnx3aP3F"
+        },
+        {
+          "type": "link",
+          "value": "Course",
+          "url": "https://www.loganstrohl.com/introductory-materials"
         }
       ],
       "projects": []
